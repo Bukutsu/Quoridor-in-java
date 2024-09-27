@@ -8,6 +8,7 @@ public class Cell extends JButton{
         super();   // JTextField
         this.row = row;
         this.col = col;
+        //FAKE
         // Set JButton's default display properties
      }
     
