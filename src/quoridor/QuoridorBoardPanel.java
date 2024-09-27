@@ -29,21 +29,21 @@ public class QuoridorBoardPanel extends JPanel{
                 if (row % 2 == 0 && col % 2 == 0) {
                     // Player cell: Set a larger size
                     cells[row][col].setPreferredSize(new Dimension(50, 50));
-                    cells[row][col].setBackground(Color.GREEN);
+                    cells[row][col].setBackground(Color.decode("#f3eed9"));
                 } else if (row % 2 == 0 && col % 2 != 0) {
                     // Horizontal wall space: Thinner width, and continuous wall effect
                     cells[row][col].setPreferredSize(new Dimension(10, 50));
-                    cells[row][col].setBackground(new Color(139, 69, 19)); // Brown-like color for wood
+                    cells[row][col].setBackground(Color.decode("#844e41"));
                     cells[row][col].setBorder(new EmptyBorder(0, 0, 0, 0)); // No borders
                 } else if (row % 2 != 0 && col % 2 == 0) {
                     // Vertical wall space: Thinner height, and continuous wall effect
                     cells[row][col].setPreferredSize(new Dimension(50, 10));
-                    cells[row][col].setBackground(new Color(139, 69, 19)); // Brown-like color for wood
+                    cells[row][col].setBackground(Color.decode("#844e41"));
                     cells[row][col].setBorder(new EmptyBorder(0, 0, 0, 0)); // No borders
                 } else {
                     // Wall intersection point (between two walls)
                     cells[row][col].setPreferredSize(new Dimension(10, 10));
-                    cells[row][col].setBackground(new Color(139, 69, 19)); // Darker brown for intersection
+                    cells[row][col].setBackground(Color.decode("#844e41"));
                     cells[row][col].setBorder(new EmptyBorder(0, 0, 0, 0)); // No borders
                 }
 
