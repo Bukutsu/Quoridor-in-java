@@ -76,11 +76,11 @@ public class QuoridorPanel extends JPanel{
     	//(ตำเเหน่ง x,y ไว้เช็คตรงกลางของช่องเดินเช่น(x=4,cell_size=50 ===> 4*50/50/4 = 212.5คือตรงกลางเเกนxที่ตัวเดินวางอยู่))
         if(currentPlayer == player1||Start){
 		g.setColor(Color.BLUE);
-	} else g.setColor(Color.GRAY);
+	} else g.setColor(Color.decode("#5d8aa8"));
         g.fillRect(player1.x * CELL_SIZE + CELL_SIZE / 4 , player1.y * CELL_SIZE + CELL_SIZE / 4, CELL_SIZE / 2, CELL_SIZE / 2);
         if(currentPlayer == player2||Start){
 		g.setColor(Color.GREEN);
-	} else g.setColor(Color.GRAY);
+	} else g.setColor(Color.decode("#679267"));
         g.fillRect(player2.x * CELL_SIZE + CELL_SIZE / 4, player2.y * CELL_SIZE + CELL_SIZE / 4, CELL_SIZE / 2, CELL_SIZE / 2);
     }
 
