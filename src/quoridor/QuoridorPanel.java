@@ -88,7 +88,8 @@ public class QuoridorPanel extends JPanel{
         walls.add(new Wall(x, y, isHorizontal));
         repaint();
     }
-        private void handleMouseClick(MouseEvent e) {
+
+    private void handleMouseClick(MouseEvent e) {
         int x = e.getX();
         int y = e.getY();
         // Check if click is close to a vertical line
@@ -130,7 +131,7 @@ public class QuoridorPanel extends JPanel{
             } else {
                 System.out.println("Invalid move");
             }
-	Start = false;
+	    Start = false;
         }
         if (player1.y == 8) {
         	JOptionPane.showMessageDialog(this, "Player 1 Wins!");
@@ -144,12 +145,31 @@ public class QuoridorPanel extends JPanel{
     }
    
     private boolean isMoveValid(Player player, int x, int y) {
-        // ตรวจสอบว่าตำแหน่งที่คลิกอยู่ใกล้ตำแหน่งปัจจุบันของผู้เล่นและไม่มีสิ่งกีดขวาง
+        // ตรวจสอบตำแหน่งปัจจุบันของผู้เล่น
         int dx = Math.abs(player.x - x);
         int dy = Math.abs(player.y - y);
-        
-        // เดินได้เฉพาะในแนวตั้งหรือแนวนอนที่ระยะ 1 ช่อง
-        return (dx == 1 && dy == 0) || (dx == 0 && dy == 1);
+    
+        // ตรวจสอบว่ากำลังเดินในแนวนอนหรือแนวตั้งที่ห่างกัน 1 ช่อง
+        if ((dx == 1 && dy == 0) || (dx == 0 && dy == 1)) {
+            if (dx == 1) { // การเคลื่อนที่ในแนวนอน
+                if (x > player.x) { // เดินขวา
+                    if (!verticalWalls[player.y][player.x + 1]) return true; //ไม่มีกำเเพง
+                    else return false; // มีกำแพงขวางทาง
+                } else { // เดินซ้าย
+                    if (!verticalWalls[player.y][player.x]) return true; //ไม่มีกำเเพง
+                    else return false; // มีกำแพง
+                }
+            } else if (dy == 1) { // แนวตั้ง
+                if (y > player.y) { // เดินลง
+                    if (!horizontalWalls[player.y + 1][player.x]) return true; //ไม่มีกำเเพง
+                    else return false; // มีกำแพงขวางทาง
+                } else { // เดินขึ้น
+                    if (!horizontalWalls[player.y][player.x]) return true; //ไม่มีกำเเพง
+                    else return false; // มีกำแพง
+                }
+            }
+        }
+        return false;//เดินผิดตำเเหน่ง
     }
 
     private void switchPlayer() {
@@ -224,10 +244,12 @@ public class QuoridorPanel extends JPanel{
 
     private void placeHorizontalWall(int x,int y){
         horizontalWalls[y][x] = true;
+        horizontalWalls[y][x+1] = true;
     }
 
     private void placeVerticalWall(int x,int y){
         verticalWalls[y][x] = true;
+        verticalWalls[y+1][x] = true;
     }
 
 
