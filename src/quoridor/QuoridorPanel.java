@@ -207,11 +207,11 @@ public class QuoridorPanel extends JPanel{
                 if (player.y - 1 == otherPlayer().y && player.x == otherPlayer().x && !horizontalWalls[player.y - 1][player.x] && !horizontalWalls[player.y][player.x]) return true;
             }
         }
-     // การเดินทแยง
+          // การเดินทแยง
         if (dx == 1 && dy == 1) {
 	// ตรวจสอบว่าามีผู้เล่นอยู่ตรงหน้าและมีกำแพงขวางหลังไหม
             if (player.x + 1 == otherPlayer().x && player.y == otherPlayer().y) { // มีผู้เล่นอยู่ทางขวา
-                if (verticalWalls[player.y][player.x + 2]) { // เช็คว่ามีกำแพงข้างหลังผู้เล่นที่จะข้าม
+                if (verticalWalls[player.y][player.x + 2] && !verticalWalls[player.y][player.x + 1]) { // เช็คว่ามีกำแพงข้างหลังผู้เล่นที่จะข้าม
                     if (y > player.y && !horizontalWalls[player.y + 1][player.x + 1]) { // เดินทแยง-ลงขวา
                         return true;
                     } else if (y < player.y && !horizontalWalls[player.y][player.x + 1]) { // เดินทแยง-ขึ้นขวา
@@ -219,7 +219,7 @@ public class QuoridorPanel extends JPanel{
                     }
                 }
             } else if (player.x - 1 == otherPlayer().x && player.y == otherPlayer().y) { //มีผู้เล่นอยู่ทางซ้าย
-                if (verticalWalls[player.y][player.x - 1]) {
+                if (verticalWalls[player.y][player.x - 1] && !verticalWalls[player.y][player.x]) {
                     if (y > player.y && !horizontalWalls[player.y + 1][player.x]) { // เดินทแยง-ลงซ้าย
                         return true;
                     } else if (y < player.y && !horizontalWalls[player.y][player.x]) { // เดินทแยง-ขึ้นซ้าย
@@ -227,7 +227,7 @@ public class QuoridorPanel extends JPanel{
                     }
                 }
             } else if (player.y + 1 == otherPlayer().y && player.x == otherPlayer().x) { // มีผู้เล่นอยู่ข้างล่าง
-        	if (horizontalWalls[player.y + 2][player.x]) {
+            	if (horizontalWalls[player.y + 2][player.x] && !horizontalWalls[player.y + 1][player.x]) {
                     if (x > player.x && !verticalWalls[player.y + 1][player.x + 1]) { // เดินทแยง-ลงขวา
                         return true;
                     } else if (x < player.x && !verticalWalls[player.y + 1][player.x]) { // เดินทแยง-ลงซ้าย
@@ -235,7 +235,7 @@ public class QuoridorPanel extends JPanel{
                     }
                 }
             } else if (player.y - 1 == otherPlayer().y && player.x == otherPlayer().x) { // มีผู้เล่นอยู่ข้างบน
-                if (horizontalWalls[player.y - 1][player.x]) {
+                if (horizontalWalls[player.y - 1][player.x] && !horizontalWalls[player.y][player.x]) {
                     if (x > player.x && !verticalWalls[player.y - 1][player.x + 1]) { // เดินทแยง-ขึ้นขวา
                         return true;
                     } else if (x < player.x && !verticalWalls[player.y - 1][player.x]) { // เดินทแยง-ขึ้นซ้าย
