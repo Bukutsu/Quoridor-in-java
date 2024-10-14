@@ -3,13 +3,12 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 public class QuoridorPanel extends JPanel{
     private List<Wall> walls;
-    private Player player1;
-    private Player player2;
+    private Player players[];
     private Player currentPlayer; // ผู้เล่นคนที่กำลังมีสิทธิ์เดิน
     private boolean gameEnded = false;
     private boolean Start = true;
@@ -28,9 +27,12 @@ public class QuoridorPanel extends JPanel{
 
     public QuoridorPanel() {
         walls = new ArrayList<>();
-        player1 = new Player(4,0);
-        player2 = new Player(4,8); 
-        currentPlayer = player1; // เริ่มต้นที่ player1
+        
+        players = new Player[2];
+        players[0] = new Player(4,0);
+        players[1] = new Player(4,8); 
+
+        currentPlayer = players[1]; // เริ่มต้นที่ player1
         
         setPreferredSize(new Dimension(BOARD_SIZE * CELL_SIZE + 1, BOARD_SIZE * CELL_SIZE + 1));
         addMouseListener(new MouseAdapter() {
@@ -74,14 +76,14 @@ public class QuoridorPanel extends JPanel{
     	// g.fillOval วงกลม
     	//(ตำเเหน่ง x,ตำเเหน่ง y,wihth,height)   
     	//(ตำเเหน่ง x,y ไว้เช็คตรงกลางของช่องเดินเช่น(x=4,cell_size=50 ===> 4*50/50/4 = 212.5คือตรงกลางเเกนxที่ตัวเดินวางอยู่))
-        if(currentPlayer == player1||Start){
+        if(currentPlayer == players[0] || Start){
 		g.setColor(Color.BLUE);
 	} else g.setColor(Color.decode("#5d8aa8"));
-        g.fillRect(player1.x * CELL_SIZE + CELL_SIZE / 4 , player1.y * CELL_SIZE + CELL_SIZE / 4, CELL_SIZE / 2, CELL_SIZE / 2);
-        if(currentPlayer == player2||Start){
+        g.fillRect(players[0].x * CELL_SIZE + CELL_SIZE / 4 , players[0].y * CELL_SIZE + CELL_SIZE / 4, CELL_SIZE / 2, CELL_SIZE / 2);
+        if(currentPlayer == players[1] || Start){
 		g.setColor(Color.GREEN);
 	} else g.setColor(Color.decode("#679267"));
-        g.fillRect(player2.x * CELL_SIZE + CELL_SIZE / 4, player2.y * CELL_SIZE + CELL_SIZE / 4, CELL_SIZE / 2, CELL_SIZE / 2);
+        g.fillRect(players[1].x * CELL_SIZE + CELL_SIZE / 4, players[1].y * CELL_SIZE + CELL_SIZE / 4, CELL_SIZE / 2, CELL_SIZE / 2);
   
 }
 
@@ -105,8 +107,8 @@ public class QuoridorPanel extends JPanel{
         	        placeVerticalWall(cellX, cellY);
         	        addWall(cellX, cellY, false);
         	        
-        	        if (!isPathAvailable(otherPlayer())) {
-        	            JOptionPane.showMessageDialog(this, "Player " + (currentPlayer == player1 ? "2" : "1") + " Wins! (Path Blocked)");
+        	        if (!isPathAvailable(players[0]) || !isPathAvailable(players[1])) {
+        	            JOptionPane.showMessageDialog(this, "Player " + (currentPlayer == players[0] ? "2" : "1") + " Wins! (Path Blocked)");
         	            gameEnded = true;
         	        } else {
         	            switchPlayer(); // สลับตา
@@ -120,8 +122,8 @@ public class QuoridorPanel extends JPanel{
         	        placeHorizontalWall(cellX, cellY);
         	        addWall(cellX, cellY, true);
         	        
-        	        if (!isPathAvailable(otherPlayer())) {
-        	            JOptionPane.showMessageDialog(this, "Player " + (currentPlayer == player1 ? "2" : "1") + " Wins! (Path Blocked)");
+        	        if (!isPathAvailable(players[0]) || !isPathAvailable(players[1])) {
+        	            JOptionPane.showMessageDialog(this, "Player " + (currentPlayer == players[0] ? "2" : "1") + " Wins! (Path Blocked)");
         	            gameEnded = true;
         	        } else {
         	            switchPlayer(); // สลับตา
@@ -145,22 +147,22 @@ public class QuoridorPanel extends JPanel{
             }
 	    Start = false;
         }
-        if (player1.y == 8) {
+        if (players[0].y == 8) {
         	JOptionPane.showMessageDialog(this, "Player 1 Wins!");
         	gameEnded = true;
         } 
     	
-        else if (player2.y == 0) {
+        else if (players[1].y == 0) {
         	JOptionPane.showMessageDialog(this, "Player 2 Wins!");
         	gameEnded = true;
         }
     }
 
     private Player otherPlayer() {
-        if (currentPlayer == player1) {
-            return player2;
+        if (currentPlayer == players[0]) {
+            return players[1];
         } else {
-            return player1;
+            return players[0];
         }
     }
    
@@ -248,10 +250,10 @@ public class QuoridorPanel extends JPanel{
     }
 
     private void switchPlayer() {
-        if (currentPlayer == player1) {
-            currentPlayer = player2;
+        if (currentPlayer == players[0]) {
+            currentPlayer = players[1];
         } else {
-            currentPlayer = player1;
+            currentPlayer = players[0];
         }
     }
     
@@ -270,10 +272,10 @@ public class QuoridorPanel extends JPanel{
             Point current = queue.poll();
             
             // ตรวจสอบว่า player ถึงเส้นชัยหรือยัง
-            if (player == player1 && current.y == BOARD_SIZE - 1) {
+            if (player == players[0] && current.y == BOARD_SIZE - 1) {
                 return true; // player1 ไปถึงเส้นชัย
             }
-            if (player == player2 && current.y == 0) {
+            if (player == players[1] && current.y == 0) {
                 return true; // player2 ไปถึงเส้นชัย
             }
 
@@ -324,12 +326,7 @@ public class QuoridorPanel extends JPanel{
             }
         }
 
-        if(verticalWallDownward % 2 == 0){
-            return true;
-        }
-
-        // Check for intersection with vertical walls
-        if (verticalWalls[y-1][x+1]) {
+        if(verticalWallDownward % 2 != 0){
             return false;
         }
         
@@ -354,18 +351,10 @@ public class QuoridorPanel extends JPanel{
             }
         }
 
-        if(horizontalWallRightward % 2 == 0){
-            return true;
-        }
-
-        
-
-        // Check for intersection with horizontal walls
-        if (horizontalWalls[y+1][x-1]) {
+        if(horizontalWallRightward % 2 != 0){
             return false;
         }
 
-        
         
         return true;
     }
