@@ -2,8 +2,10 @@ package quoridor;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
+
 
 
 public class QuoridorPanel extends JPanel{
@@ -112,6 +114,38 @@ public class QuoridorPanel extends JPanel{
         if (gameEnded) return;
         if (e.getButton() == MouseEvent.BUTTON1) {
         	// Clicked near a vertical line
+        	if (isCloseToVerticalLine(x)) {
+        	    if (canPlaceVerticalWall(cellX, cellY)) {
+        	        placeVerticalWall(cellX, cellY);
+        	        addWall(cellX, cellY, false);
+        	        
+        	        if (!isPathAvailable(otherPlayer())) {
+        	            JOptionPane.showMessageDialog(this, "Player " + (currentPlayer == player1 ? "2" : "1") + " Wins! (Path Blocked)");
+        	            gameEnded = true;
+        	        } else {
+        	            switchPlayer(); // สลับตา
+        	            System.out.println("Clicked Vertical Wall" + "(" + cellX + "," + cellY + ")");
+        	        }
+        	    }
+        	    else System.out.println("You Cannot Place Vertical Wall at" + "(" + cellX + "," + cellY + ")");
+        	}
+        	if (isCloseToHorizontalLine(y)) {
+        	    if (canPlaceHorizontalWall(cellX, cellY)) {
+        	        placeHorizontalWall(cellX, cellY);
+        	        addWall(cellX, cellY, true);
+        	        
+        	        if (!isPathAvailable(otherPlayer())) {
+        	            JOptionPane.showMessageDialog(this, "Player " + (currentPlayer == player1 ? "2" : "1") + " Wins! (Path Blocked)");
+        	            gameEnded = true;
+        	        } else {
+        	            switchPlayer(); // สลับตา
+        	            System.out.println("Clicked Horizontal Wall" + "(" + cellX + "," + cellY + ")");
+        	        }
+        	    }
+        	    else System.out.println("You Cannot Place Horizontal Wall at" + "(" + cellX + "," + cellY + ")");
+        	}
+
+        	/*
             if (isCloseToVerticalLine(x)) {
                 if (canPlaceVerticalWall(cellX, cellY)) {
                     placeVerticalWall(cellX, cellY);
@@ -131,10 +165,10 @@ public class QuoridorPanel extends JPanel{
                 else System.out.println("You Cannot Place Horizontal Wall at" + "(" + cellX + "," + cellY + ")");
             }
             System.out.println("Clicked Cell" + "(" + cellX + "," + cellY + ")");
-
+        	 */
         } else if (e.getButton() == MouseEvent.BUTTON3) {
             // คลิกขวา: เดินผู้เล่น
-            if (isMoveValid(currentPlayer, cellX, cellY)) {
+        	if (isMoveValid(currentPlayer, cellX, cellY)) {
                 currentPlayer.x = cellX;
                 currentPlayer.y = cellY;
                 switchPlayer(); // สลับตา
@@ -169,7 +203,11 @@ public class QuoridorPanel extends JPanel{
         // ตรวจสอบตำแหน่งปัจจุบันของผู้เล่น
         int dx = Math.abs(player.x - x);
         int dy = Math.abs(player.y - y);
-    
+        
+        
+        if (x == otherPlayer().x && y == otherPlayer().y) {
+            return false; // เดินทับตำแหน่ง
+        }
         // ตรวจสอบว่ากำลังเดินในแนวนอนหรือแนวตั้งที่ห่างกัน 1 ช่อง
         if ((dx == 1 && dy == 0) || (dx == 0 && dy == 1)) {
             if (dx == 1) { // การเคลื่อนที่ในแนวนอน
