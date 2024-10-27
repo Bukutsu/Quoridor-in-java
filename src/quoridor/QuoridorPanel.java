@@ -121,9 +121,9 @@ public class QuoridorPanel extends JPanel{
         	            JOptionPane.showMessageDialog(this, "Player " + (currentPlayer == players[0] ? "2" : "1") + " Wins! (Path Blocked)");
         	            gameEnded = true;
         	        } else {
+                        currentPlayer.wall--;
         	            switchPlayer(); // สลับตา
         	            System.out.println("Clicked Vertical Wall" + "(" + cellX + "," + cellY + ")");
-                        currentPlayer.wall--;
                         statusPanel.updateWallsLebel();
         	        }
         	    }
@@ -141,9 +141,9 @@ public class QuoridorPanel extends JPanel{
         	            JOptionPane.showMessageDialog(this, "Player " + (currentPlayer == players[0] ? "2" : "1") + " Wins! (Path Blocked)");
         	            gameEnded = true;
         	        } else {
+                        currentPlayer.wall--;
         	            switchPlayer(); // สลับตา
         	            System.out.println("Clicked Horizontal Wall" + "(" + cellX + "," + cellY + ")");
-                        currentPlayer.wall--;
                         statusPanel.updateWallsLebel();
         	        }
         	    }
