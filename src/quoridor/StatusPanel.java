@@ -8,18 +8,25 @@ public class StatusPanel extends JPanel{
     private JLabel timeLabel;
     private JLabel wallsLabel;
     private int elapsedTime = 0;
+    private Player players[];
+
 
     public void updateStatusPanel() {
         int minutes = elapsedTime / 60;
         int seconds = elapsedTime % 60;
         timeLabel.setText(String.format("Time: %02d:%02d", minutes, seconds));
         //TODO : wall count implement
-        wallsLabel.setText(String.format("Player 1 Walls: %d | Player 2 Walls: %d", 10, 10));
+        updateWallsLebel();
     }
 
 
+    public void updateWallsLebel(){
+        wallsLabel.setText(String.format("Player 1 Walls: %d | Player 2 Walls: %d", players[0].wall, players[1].wall));
+    }
+    
 
-    public StatusPanel(){
+    public StatusPanel(Player[] players){
+        this.players = players;
         setLayout(new BorderLayout());
         timeLabel = new JLabel("Time: 00:00");
         timeLabel.setHorizontalAlignment(JLabel.CENTER);

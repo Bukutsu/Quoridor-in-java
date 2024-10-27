@@ -12,7 +12,12 @@ public class QuoridorPanel extends JPanel{
     private Player currentPlayer; // ผู้เล่นคนที่กำลังมีสิทธิ์เดิน
     private boolean gameEnded = false;
     private boolean Start = true;
+    private StatusPanel statusPanel;
     
+    public void setStatusPanel(StatusPanel statusPanel) {
+        this.statusPanel = statusPanel;
+    }
+
     private static final int BOARD_SIZE = 9;
     private static final int CELL_SIZE = 50;
     private static final int WALL_THICKNESS = 8;
@@ -23,14 +28,16 @@ public class QuoridorPanel extends JPanel{
     private boolean[][] horizontalWalls = new boolean[BOARD_SIZE][BOARD_SIZE];
     private boolean[][] verticalWalls = new boolean[BOARD_SIZE][BOARD_SIZE];
 
-	
+    public Player[] getPlayers() {
+        return players;
+    }
 
     public QuoridorPanel() {
         walls = new ArrayList<>();
         
         players = new Player[2];
-        players[0] = new Player(4,0);
-        players[1] = new Player(4,8); 
+        players[0] = new Player(4,0,10);
+        players[1] = new Player(4,8,10); 
 
         currentPlayer = players[1]; // เริ่มต้นที่ player1
         
@@ -103,22 +110,30 @@ public class QuoridorPanel extends JPanel{
         if (e.getButton() == MouseEvent.BUTTON1) {
         	// Clicked near a vertical line
         	if (isCloseToVerticalLine(x)) {
-        	    if (canPlaceVerticalWall(cellX, cellY)) {
+                if(currentPlayer.wall < 1){
+                    System.out.println("Player out of wall!");
+                } 
+        	    else if (canPlaceVerticalWall(cellX, cellY)) {
         	        placeVerticalWall(cellX, cellY);
         	        addWall(cellX, cellY, false);
-        	        
+                      	        
         	        if (!isPathAvailable(players[0]) || !isPathAvailable(players[1])) {
         	            JOptionPane.showMessageDialog(this, "Player " + (currentPlayer == players[0] ? "2" : "1") + " Wins! (Path Blocked)");
         	            gameEnded = true;
         	        } else {
         	            switchPlayer(); // สลับตา
         	            System.out.println("Clicked Vertical Wall" + "(" + cellX + "," + cellY + ")");
+                        currentPlayer.wall--;
+                        statusPanel.updateWallsLebel();
         	        }
         	    }
         	    else System.out.println("You Cannot Place Vertical Wall at" + "(" + cellX + "," + cellY + ")");
         	}
         	else if (isCloseToHorizontalLine(y)) {
-        	    if (canPlaceHorizontalWall(cellX, cellY)) {
+                if(currentPlayer.wall < 1){
+                    System.out.println("Player out of wall!");
+                } 
+        	    else if (canPlaceHorizontalWall(cellX, cellY)) {
         	        placeHorizontalWall(cellX, cellY);
         	        addWall(cellX, cellY, true);
         	        
@@ -128,6 +143,8 @@ public class QuoridorPanel extends JPanel{
         	        } else {
         	            switchPlayer(); // สลับตา
         	            System.out.println("Clicked Horizontal Wall" + "(" + cellX + "," + cellY + ")");
+                        currentPlayer.wall--;
+                        statusPanel.updateWallsLebel();
         	        }
         	    }
         	    else System.out.println("You Cannot Place Horizontal Wall at" + "(" + cellX + "," + cellY + ")");
@@ -147,6 +164,7 @@ public class QuoridorPanel extends JPanel{
             }
 	    Start = false;
         }
+
         if (players[0].y == 8) {
         	JOptionPane.showMessageDialog(this, "Player 1 Wins!");
         	gameEnded = true;
@@ -246,7 +264,7 @@ public class QuoridorPanel extends JPanel{
                 }
             }
         }
-        return false;//เดินผิดตำเเหน่ง
+        return false;  //เดินผิดตำเเหน่ง
     }
 
     private void switchPlayer() {
