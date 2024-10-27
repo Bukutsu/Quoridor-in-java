@@ -26,7 +26,6 @@ public class QuoridorMain extends JFrame {
         SwingUtilities.invokeLater(() -> {
             QuoridorMain game = new QuoridorMain();
             game.setVisible(true);
-            
         });
     }
 }

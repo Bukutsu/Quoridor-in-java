@@ -4,18 +4,20 @@ import javax.swing.*;
 import java.awt.*;
 
 public class StatusPanel extends JPanel{
-    //TODO : make it better GUI 
+    //TODO : make it nicer GUI 
     private JLabel timeLabel;
     private JLabel wallsLabel;
     private int elapsedTime = 0;
     private Player players[];
 
+    public void setElapsedTime(int elapsedTime) {
+        this.elapsedTime = elapsedTime;
+    }
 
     public void updateStatusPanel() {
         int minutes = elapsedTime / 60;
         int seconds = elapsedTime % 60;
         timeLabel.setText(String.format("Time: %02d:%02d", minutes, seconds));
-        //TODO : wall count implement
         updateWallsLebel();
     }
 

@@ -4,20 +4,15 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 import java.util.List;
-import java.util.Queue;
+
 
 public class QuoridorPanel extends JPanel{
     private List<Wall> walls;
     private Player players[];
     private Player currentPlayer; // ผู้เล่นคนที่กำลังมีสิทธิ์เดิน
-    private boolean gameEnded = false;
     private boolean Start = true;
     private StatusPanel statusPanel;
     
-    public void setStatusPanel(StatusPanel statusPanel) {
-        this.statusPanel = statusPanel;
-    }
-
     private static final int BOARD_SIZE = 9;
     private static final int CELL_SIZE = 50;
     private static final int WALL_THICKNESS = 8;
@@ -32,9 +27,13 @@ public class QuoridorPanel extends JPanel{
         return players;
     }
 
+    public void setStatusPanel(StatusPanel statusPanel) {
+        this.statusPanel = statusPanel;
+    }
+
+
     public QuoridorPanel() {
         walls = new ArrayList<>();
-        
         players = new Player[2];
         players[0] = new Player(4,0,10);
         players[1] = new Player(4,8,10); 
@@ -59,6 +58,28 @@ public class QuoridorPanel extends JPanel{
         drawPlayers(g);
     }
 
+    private void resetGame(){
+        walls.clear();
+
+        players[1].x = 4;
+        players[1].y = 8;
+        players[0].x = 4;
+        players[0].y = 0;
+
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                horizontalWalls[i][j] = false;
+                verticalWalls[i][j] = false;
+            }
+        }
+
+        statusPanel.setElapsedTime(-1);
+
+        currentPlayer = players[0];
+        Start = true;
+        repaint();
+    }
+
     private void drawBoard(Graphics g) {
         g.setColor(Color.BLACK);
         for (int i = 0; i <= BOARD_SIZE; i++) {
@@ -79,6 +100,7 @@ public class QuoridorPanel extends JPanel{
             }
         }
     }
+    
     private void drawPlayers(Graphics g) {
     	// g.fillOval วงกลม
     	//(ตำเเหน่ง x,ตำเเหน่ง y,wihth,height)   
@@ -106,7 +128,7 @@ public class QuoridorPanel extends JPanel{
         int cellX = x / CELL_SIZE;
         int cellY = y / CELL_SIZE;
         
-        if (gameEnded) return;
+
         if (e.getButton() == MouseEvent.BUTTON1) {
         	// Clicked near a vertical line
         	if (isCloseToVerticalLine(x)) {
@@ -119,7 +141,7 @@ public class QuoridorPanel extends JPanel{
                       	        
         	        if (!isPathAvailable(players[0]) || !isPathAvailable(players[1])) {
         	            JOptionPane.showMessageDialog(this, "Player " + (currentPlayer == players[0] ? "2" : "1") + " Wins! (Path Blocked)");
-        	            gameEnded = true;
+        	            resetGame();
         	        } else {
                         currentPlayer.wall--;
         	            switchPlayer(); // สลับตา
@@ -139,7 +161,7 @@ public class QuoridorPanel extends JPanel{
         	        
         	        if (!isPathAvailable(players[0]) || !isPathAvailable(players[1])) {
         	            JOptionPane.showMessageDialog(this, "Player " + (currentPlayer == players[0] ? "2" : "1") + " Wins! (Path Blocked)");
-        	            gameEnded = true;
+        	            resetGame();
         	        } else {
                         currentPlayer.wall--;
         	            switchPlayer(); // สลับตา
@@ -167,12 +189,12 @@ public class QuoridorPanel extends JPanel{
 
         if (players[0].y == 8) {
         	JOptionPane.showMessageDialog(this, "Player 1 Wins!");
-        	gameEnded = true;
+        	resetGame();
         } 
     	
         else if (players[1].y == 0) {
         	JOptionPane.showMessageDialog(this, "Player 2 Wins!");
-        	gameEnded = true;
+        	resetGame();
         }
     }
 
