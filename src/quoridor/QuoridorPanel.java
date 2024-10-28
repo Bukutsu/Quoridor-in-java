@@ -37,8 +37,13 @@ public class QuoridorPanel extends JPanel{
         players = new Player[2];
         players[0] = new Player(4,0,10);
         players[1] = new Player(4,8,10); 
-
-        currentPlayer = players[1]; // เริ่มต้นที่ player1
+//*************************************************** 4 คน **********************************************
+//      players = new Player[4];
+//      players[0] = new Player(4, 0, 10);
+//      players[1] = new Player(4, 8, 10);
+//      players[2] = new Player(0, 4, 10); 
+//      players[3] = new Player(8, 4, 10);
+        currentPlayer = players[0]; // เริ่มต้นที่ player1
         
         setPreferredSize(new Dimension(BOARD_SIZE * CELL_SIZE + 1, BOARD_SIZE * CELL_SIZE + 1));
         addMouseListener(new MouseAdapter() {
@@ -65,6 +70,11 @@ public class QuoridorPanel extends JPanel{
         players[1].y = 8;
         players[0].x = 4;
         players[0].y = 0;
+//*************************************************** 4 คน ***********************************************
+//      players[1].x = 4;players[1].y = 8;
+//      players[0].x = 4;players[0].y = 0;
+//      players[2].x = 0;players[2].y = 4;
+//      players[3].x = 8;players[3].y = 4;
 
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
@@ -113,7 +123,17 @@ public class QuoridorPanel extends JPanel{
 		g.setColor(Color.GREEN);
 	} else g.setColor(Color.decode("#679267"));
         g.fillRect(players[1].x * CELL_SIZE + CELL_SIZE / 4, players[1].y * CELL_SIZE + CELL_SIZE / 4, CELL_SIZE / 2, CELL_SIZE / 2);
-  
+//*************************************************** 4 คน ***********************************************
+//      Color[] colors = {Color.BLUE, Color.GREEN, Color.RED, Color.PINK}; 
+//      for (int i = 0; i < players.length; i++) {
+//          g.setColor(colors[i]);
+//          g.fillRect(
+//              players[i].x * CELL_SIZE + CELL_SIZE / 4, 
+//              players[i].y * CELL_SIZE + CELL_SIZE / 4, 
+//              CELL_SIZE / 2, CELL_SIZE / 2
+//          );
+//      }
+//  }
 }
 
     public void addWall(int x, int y, boolean isHorizontal) {
@@ -138,16 +158,10 @@ public class QuoridorPanel extends JPanel{
         	    else if (canPlaceVerticalWall(cellX, cellY)) {
         	        placeVerticalWall(cellX, cellY);
         	        addWall(cellX, cellY, false);
-                      	        
-        	        if (!isPathAvailable(players[0]) || !isPathAvailable(players[1])) {
-        	            JOptionPane.showMessageDialog(this, "Player " + (currentPlayer == players[0] ? "2" : "1") + " Wins! (Path Blocked)");
-        	            resetGame();
-        	        } else {
-                        currentPlayer.wall--;
-        	            switchPlayer(); // สลับตา
-        	            System.out.println("Clicked Vertical Wall" + "(" + cellX + "," + cellY + ")");
-                        statusPanel.updateWallsLebel();
-        	        }
+                    currentPlayer.wall--;
+        	        switchPlayer(); // สลับตา
+        	        System.out.println("Clicked Vertical Wall" + "(" + cellX + "," + cellY + ")");
+                    statusPanel.updateWallsLebel();
         	    }
         	    else System.out.println("You Cannot Place Vertical Wall at" + "(" + cellX + "," + cellY + ")");
         	}
@@ -158,16 +172,10 @@ public class QuoridorPanel extends JPanel{
         	    else if (canPlaceHorizontalWall(cellX, cellY)) {
         	        placeHorizontalWall(cellX, cellY);
         	        addWall(cellX, cellY, true);
-        	        
-        	        if (!isPathAvailable(players[0]) || !isPathAvailable(players[1])) {
-        	            JOptionPane.showMessageDialog(this, "Player " + (currentPlayer == players[0] ? "2" : "1") + " Wins! (Path Blocked)");
-        	            resetGame();
-        	        } else {
-                        currentPlayer.wall--;
-        	            switchPlayer(); // สลับตา
-        	            System.out.println("Clicked Horizontal Wall" + "(" + cellX + "," + cellY + ")");
-                        statusPanel.updateWallsLebel();
-        	        }
+                    currentPlayer.wall--;
+        	        switchPlayer(); // สลับตา
+        	        System.out.println("Clicked Horizontal Wall" + "(" + cellX + "," + cellY + ")");
+                    statusPanel.updateWallsLebel();
         	    }
         	    else System.out.println("You Cannot Place Horizontal Wall at" + "(" + cellX + "," + cellY + ")");
         	}
@@ -196,23 +204,36 @@ public class QuoridorPanel extends JPanel{
         	JOptionPane.showMessageDialog(this, "Player 2 Wins!");
         	resetGame();
         }
+        //*************************************************** 4 คน ***********************************************
+//      if (players[0].y == 8) {
+//    	JOptionPane.showMessageDialog(this, "Player 1 Wins!");
+//    	resetGame();
+//    } 
+//	
+//    else if (players[1].y == 0) {
+//    	JOptionPane.showMessageDialog(this, "Player 2 Wins!");
+//    	resetGame();
+//    }
+//    else if (players[2].x == 8) {
+//    	JOptionPane.showMessageDialog(this, "Player 3 Wins!");
+//    	resetGame();
+//    }
+//    else if (players[3].x == 0) {
+//    	JOptionPane.showMessageDialog(this, "Player 3 Wins!");
+//    	resetGame();
+//    }
     }
 
-    private Player otherPlayer() {
-        if (currentPlayer == players[0]) {
-            return players[1];
-        } else {
-            return players[0];
-        }
-    }
    
     private boolean isMoveValid(Player player, int x, int y) {
         // ตรวจสอบตำแหน่งปัจจุบันของผู้เล่น
         int dx = Math.abs(player.x - x);
         int dy = Math.abs(player.y - y);
-        if (x == otherPlayer().x && y == otherPlayer().y) {
-            return false; // ไม่อนุญาตให้เดินไปทับตำแหน่งที่มีผู้เล่นคนอื่นอยู่
-        }
+        for (Player other : players) {
+          if (other != player && x == other.x && y == other.y) {
+              return false; // ไม่อนุญาตให้เดินไปทับตำแหน่งที่มีผู้เล่นคนอื่นอยู่
+          }
+      }
         // ตรวจสอบว่ากำลังเดินในแนวนอนหรือแนวตั้งที่ห่างกัน 1 ช่อง
         if ((dx == 1 && dy == 0) || (dx == 0 && dy == 1)) {
             if (dx == 1) { // การเคลื่อนที่ในแนวนอน
@@ -234,67 +255,69 @@ public class QuoridorPanel extends JPanel{
             }
         }
 	// เดินข้ามผู้เล่นอื่น
-        if (dx == 2 && dy == 0) {
-            if (x > player.x) { // ขวา
-                if (player.x + 1 == otherPlayer().x && player.y == otherPlayer().y && !verticalWalls[player.y][player.x + 2] && !verticalWalls[player.y][player.x + 1]) return true;
-            } else { // ซ้าย
-                if (player.x - 1 == otherPlayer().x && player.y == otherPlayer().y && !verticalWalls[player.y][player.x - 1] && !verticalWalls[player.y][player.x]) return true;
-            }
-        }
-
-        if (dy == 2 && dx == 0) {
-            if (y > player.y) { // ลง
-                if (player.y + 1 == otherPlayer().y && player.x == otherPlayer().x && !horizontalWalls[player.y + 2][player.x] && !horizontalWalls[player.y + 1][player.x]) return true;
-            } else { // ขึ้น
-                if (player.y - 1 == otherPlayer().y && player.x == otherPlayer().x && !horizontalWalls[player.y - 1][player.x] && !horizontalWalls[player.y][player.x]) return true;
+       if (dy == 2 && dx == 0) {
+            for (Player other : players) {
+                if (other != player && player.y + 1 == other.y && player.x == other.x) { // ลง
+                    for (Player behind : players) {
+                        if (behind != player && behind != other && behind.y == player.y + 2 && behind.x == player.x) {
+                            return false; // มีผู้เล่นอีกคนอยู่ข้างหลัง
+                        }
+                    }
+                    if (y > player.y && !horizontalWalls[player.y + 2][player.x] && !horizontalWalls[player.y + 1][player.x]) return true;
+                } else if (other != player && player.y - 1 == other.y && player.x == other.x) { // ขึ้น
+                    for (Player behind : players) {
+                        if (behind != player && behind != other && behind.y == player.y - 2 && behind.x == player.x) {
+                            return false; // มีผู้เล่นอีกคนอยู่ข้างหลัง
+                        }
+                    }
+                    if (y < player.y && !horizontalWalls[player.y - 1][player.x] && !horizontalWalls[player.y][player.x]) return true;
+                }
             }
         }
      // การเดินทแยง
         if (dx == 1 && dy == 1) {
+        	for (Player other : players) {
 	// ตรวจสอบว่าามีผู้เล่นอยู่ตรงหน้าและมีกำแพงขวางหลังไหม
-            if (player.x + 1 == otherPlayer().x && player.y == otherPlayer().y) { // มีผู้เล่นอยู่ทางขวา
-                if (verticalWalls[player.y][player.x + 2]) { // เช็คว่ามีกำแพงข้างหลังผู้เล่นที่จะข้าม
-                    if (y > player.y && !horizontalWalls[player.y + 1][player.x + 1]) { // เดินทแยง-ลงขวา
-                        return true;
-                    } else if (y < player.y && !horizontalWalls[player.y][player.x + 1]) { // เดินทแยง-ขึ้นขวา
-                        return true;
-                    }
-                }
-            } else if (player.x - 1 == otherPlayer().x && player.y == otherPlayer().y) { //มีผู้เล่นอยู่ทางซ้าย
-                if (verticalWalls[player.y][player.x - 1]) {
-                    if (y > player.y && !horizontalWalls[player.y + 1][player.x]) { // เดินทแยง-ลงซ้าย
-                        return true;
-                    } else if (y < player.y && !horizontalWalls[player.y][player.x]) { // เดินทแยง-ขึ้นซ้าย
-                        return true;
-                    }
-                }
-            } else if (player.y + 1 == otherPlayer().y && player.x == otherPlayer().x) { // มีผู้เล่นอยู่ข้างล่าง
-        	if (horizontalWalls[player.y + 2][player.x]) {
-                    if (x > player.x && !verticalWalls[player.y + 1][player.x + 1]) { // เดินทแยง-ลงขวา
-                        return true;
-                    } else if (x < player.x && !verticalWalls[player.y + 1][player.x]) { // เดินทแยง-ลงซ้าย
-                        return true;
-                    }
-                }
-            } else if (player.y - 1 == otherPlayer().y && player.x == otherPlayer().x) { // มีผู้เล่นอยู่ข้างบน
-                if (horizontalWalls[player.y - 1][player.x]) {
-                    if (x > player.x && !verticalWalls[player.y - 1][player.x + 1]) { // เดินทแยง-ขึ้นขวา
-                        return true;
-                    } else if (x < player.x && !verticalWalls[player.y - 1][player.x]) { // เดินทแยง-ขึ้นซ้าย
-                        return true;
-                    }
-                }
-            }
+        		if (player.x + 1 == other.x && player.y == other.y) { // มีผู้เล่นอยู่ทางขวา
+                	if (verticalWalls[player.y][player.x + 2]) { // เช็คว่ามีกำแพงข้างหลังผู้เล่นที่จะข้าม
+                    	if (y > player.y && !horizontalWalls[player.y + 1][player.x + 1]) { // เดินทแยง-ลงขวา
+                        	return true;
+                    	} else if (y < player.y && !horizontalWalls[player.y][player.x + 1]) { // เดินทแยง-ขึ้นขวา
+                        	return true;
+                    	}
+                	}
+            	} else if (player.x - 1 == other.x && player.y == other.y) { //มีผู้เล่นอยู่ทางซ้าย
+                	if (verticalWalls[player.y][player.x - 1]) {
+                    	if (y > player.y && !horizontalWalls[player.y + 1][player.x - 1]) { // เดินทแยง-ลงซ้าย
+                        	return true;
+                    	} else if (y < player.y && !horizontalWalls[player.y][player.x - 1]) { // เดินทแยง-ขึ้นซ้าย
+                        	return true;
+                    	}
+                	}
+            	} else if (player.y + 1 == other.y && player.x == other.x) { // มีผู้เล่นอยู่ข้างล่าง
+            	if (horizontalWalls[player.y + 2][player.x]) {
+                    	if (x > player.x && !verticalWalls[player.y + 1][player.x + 1]) { // เดินทแยง-ลงขวา
+                        	return true;
+                    	} else if (x < player.x && !verticalWalls[player.y + 1][player.x]) { // เดินทแยง-ลงซ้าย
+                    		return true;
+                    	}
+                	}
+            	} else if (player.y - 1 == other.y && player.x == other.x) { // มีผู้เล่นอยู่ข้างบน
+                	if (horizontalWalls[player.y - 1][player.x]) {
+                    	if (x > player.x && !verticalWalls[player.y - 1][player.x + 1]) { // เดินทแยง-ขึ้นขวา
+                        	return true;
+                    	} else if (x < player.x && !verticalWalls[player.y - 1][player.x]) { // เดินทแยง-ขึ้นซ้าย
+                    		return true;
+                    	}
+                	}
+            	}
+        	}
         }
         return false;  //เดินผิดตำเเหน่ง
     }
-
     private void switchPlayer() {
-        if (currentPlayer == players[0]) {
-            currentPlayer = players[1];
-        } else {
-            currentPlayer = players[0];
-        }
+    	int currentIndex = Arrays.asList(players).indexOf(currentPlayer);
+    	currentPlayer = players[(currentIndex + 1) % players.length];
     }
     
     private boolean isPathAvailable(Player player) {
@@ -318,6 +341,11 @@ public class QuoridorPanel extends JPanel{
             if (player == players[1] && current.y == 0) {
                 return true; // player2 ไปถึงเส้นชัย
             }
+//*************************************************** 4 คน ***********************************************
+//          if (player == players[0] && current.y == BOARD_SIZE - 1) return true; // player1 ไปถึงเส้นชัย
+//          if (player == players[1] && current.y == 0) return true; // player2 ไปถึงเส้นชัย
+//          if (player == players[2] && current.x == BOARD_SIZE - 1) return true; // player3 ไปถึง X = BOARD_SIZE - 1
+//          if (player == players[3] && current.x == 0) return true; // player4 ไปถึง X = 0
 
             // ตรวจสอบช่องทางที่สามารถเดินไปได้ (ขึ้น, ลง, ซ้าย, ขวา)
             if (current.x > 0 && !verticalWalls[current.y][current.x] && !visited[current.y][current.x - 1]) { // ซ้าย
@@ -370,7 +398,15 @@ public class QuoridorPanel extends JPanel{
             return false;
         }
         
-        return true;
+        placeHorizontalWall(x, y);
+        boolean pathAvailableForBothPlayers = isPathAvailable(players[0]) && isPathAvailable(players[1]);
+        //*************************************************** 4 คน ***********************************************
+        //boolean pathAvailableForAllPlayers = isPathAvailable(players[0]) && isPathAvailable(players[1]) && isPathAvailable(players[2]) && isPathAvailable(players[3]);
+        // Remove the temporarily placed wall
+        horizontalWalls[y][x] = false;
+        horizontalWalls[y][x+1] = false;
+        
+        return pathAvailableForBothPlayers;
     }
 
     private boolean canPlaceVerticalWall(int x, int y) {
@@ -394,9 +430,16 @@ public class QuoridorPanel extends JPanel{
         if(horizontalWallRightward % 2 != 0){
             return false;
         }
+        placeVerticalWall(x, y);//วางกำเเพง
+        boolean pathAvailableForBothPlayers = isPathAvailable(players[0]) && isPathAvailable(players[1]);
+        //*************************************************** 4 คน ***********************************************
+        //boolean pathAvailableForAllPlayers = isPathAvailable(players[0]) && isPathAvailable(players[1]) && isPathAvailable(players[2]) && isPathAvailable(players[3]);
 
-        
-        return true;
+        // Remove the temporarily placed wall
+        verticalWalls[y][x] = false;
+        verticalWalls[y+1][x] = false;
+
+        return pathAvailableForBothPlayers;
     }
 
     private void placeHorizontalWall(int x,int y){
