@@ -2,6 +2,7 @@ package quoridor;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.Queue;
 import java.awt.event.*;
 import javax.swing.*;
 
@@ -332,6 +333,32 @@ public class QuoridorPanel extends JPanel{
                 }
             }
         }
+
+        if (dx == 2 && dy == 0) {
+        // Horizontal jump (left or right)
+        for (Player other : players) {
+            if (other != player && player.x + 1 == other.x && player.y == other.y) { // Right
+                for (Player behind : players) {
+                    if (behind != player && behind != other && behind.x == player.x + 2 && behind.y == player.y) {
+                        return false; // มีผู้เล่นอีกคนอยู่ข้างหลัง
+                    }
+                }
+                if (x > player.x && !verticalWalls[player.y][player.x + 2] && !verticalWalls[player.y][player.x + 1]) {
+                    return true; // Can move right over the other player
+                }
+            } else if (other != player && player.x - 1 == other.x && player.y == other.y) { // Left
+                for (Player behind : players) {
+                    if (behind != player && behind != other && behind.x == player.x - 2 && behind.y == player.y) {
+                        return false; // มีผู้เล่นอีกคนอยู่ข้างหลัง
+                    }
+                }
+                if (x < player.x && !verticalWalls[player.y][player.x - 1] && !verticalWalls[player.y][player.x]) {
+                    return true; // Can move left over the other player
+                }
+            }
+        }
+    }
+
      // การเดินทแยง
         if (dx == 1 && dy == 1) {
         	for (Player other : players) {
