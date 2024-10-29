@@ -1,9 +1,9 @@
 package quoridor;
+import java.util.List;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import java.util.List;
 
 public class QuoridorPanel extends JPanel{
     private List<Wall> walls;
@@ -334,6 +334,33 @@ public class QuoridorPanel extends JPanel{
         return bfs(player, visited);
     }
 
+    public boolean hasPlayerWon(Player player, Point current) {
+        int playerIndex = -1;
+    
+        // Find the player's index
+        for (int i = 0; i < players.length; i++) {
+            if (players[i] == player) {
+                playerIndex = i;
+                break;
+            }
+        }
+    
+        // Check winning conditions based on the player's index
+        switch (playerIndex) {
+            case 0:
+                return current.y == BOARD_SIZE - 1; // Player 1 wins if they reach y = BOARD_SIZE - 1
+            case 1:
+                return current.y == 0; // Player 2 wins if they reach y = 0
+            case 2:
+                return current.x == BOARD_SIZE - 1; // Player 3 wins if they reach x = BOARD_SIZE - 1
+            case 3:
+                return current.x == 0; // Player 4 wins if they reach x = 0
+            default:
+                return false; // In case the player is not recognized
+        }
+    }
+
+
     private boolean bfs(Player player, boolean[][] visited) {
         // ใช้ Queue สำหรับการ BFS
         Queue<Point> queue = new LinkedList<>();
@@ -342,6 +369,9 @@ public class QuoridorPanel extends JPanel{
 
         while (!queue.isEmpty()) {
             Point current = queue.poll();
+
+            //*************************************************** 4 คน ***********************************************
+            if(hasPlayerWon(player, current)) return true;
 
             // ตรวจสอบช่องทางที่สามารถเดินไปได้ (ขึ้น, ลง, ซ้าย, ขวา)
             if (current.x > 0 && !verticalWalls[current.y][current.x] && !visited[current.y][current.x - 1]) { // ซ้าย
@@ -396,10 +426,10 @@ public class QuoridorPanel extends JPanel{
         
         placeHorizontalWall(x, y);
 
-        boolean pathAvailableForBothPlayers = true;
+        boolean pathAvailableForAllPlayers = true;
         for(Player player : players){
             if(!isPathAvailable(player)){
-                pathAvailableForBothPlayers = false;
+                pathAvailableForAllPlayers = false;
                 break;
             }
         }
@@ -407,7 +437,7 @@ public class QuoridorPanel extends JPanel{
         horizontalWalls[y][x] = false;
         horizontalWalls[y][x+1] = false;
         
-        return pathAvailableForBothPlayers;
+        return pathAvailableForAllPlayers;
     }
 
     private boolean canPlaceVerticalWall(int x, int y) {
@@ -433,10 +463,10 @@ public class QuoridorPanel extends JPanel{
         }
         placeVerticalWall(x, y);//วางกำเเพง
 
-        boolean pathAvailableForBothPlayers = true;
+        boolean pathAvailableForAllPlayers = true;
         for(Player player : players){
             if(!isPathAvailable(player)){
-                pathAvailableForBothPlayers = false;
+                pathAvailableForAllPlayers = false;
                 break;
             }
         }
@@ -444,7 +474,7 @@ public class QuoridorPanel extends JPanel{
         verticalWalls[y][x] = false;
         verticalWalls[y+1][x] = false;
 
-        return pathAvailableForBothPlayers;
+        return pathAvailableForAllPlayers;
     }
 
     private void placeHorizontalWall(int x,int y){
