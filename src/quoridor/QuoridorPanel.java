@@ -1,16 +1,14 @@
 package quoridor;
+import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import java.util.*;
 import java.util.List;
-
 
 public class QuoridorPanel extends JPanel{
     private List<Wall> walls;
     private Player players[];
     private Player currentPlayer; // ผู้เล่นคนที่กำลังมีสิทธิ์เดิน
-    private boolean Start = true;
     private StatusPanel statusPanel;
     
     private static final int BOARD_SIZE = 9;
@@ -19,6 +17,13 @@ public class QuoridorPanel extends JPanel{
 
     //wall click sensitivity
     private static final int CLICK_TOLERANCE = 10;
+    private static final int[][] initialPositions = {
+        {4, 0}, // Player 0 position
+        {4, 8}, // Player 1 position
+        {0, 4}, // Player 2 position (for more than 2 players)
+        {8, 4}  // Player 3 position (for more than 2 players)
+    };
+
 
     private boolean[][] horizontalWalls = new boolean[BOARD_SIZE][BOARD_SIZE];
     private boolean[][] verticalWalls = new boolean[BOARD_SIZE][BOARD_SIZE];
@@ -32,17 +37,23 @@ public class QuoridorPanel extends JPanel{
     }
 
 
-    public QuoridorPanel() {
+    public QuoridorPanel(String mode) {
         walls = new ArrayList<>();
-        players = new Player[2];
-        players[0] = new Player(4,0,10);
-        players[1] = new Player(4,8,10); 
-//*************************************************** 4 คน **********************************************
-//      players = new Player[4];
-//      players[0] = new Player(4, 0, 10);
-//      players[1] = new Player(4, 8, 10);
-//      players[2] = new Player(0, 4, 10); 
-//      players[3] = new Player(8, 4, 10);
+        int startingWalls = 0;
+        if(mode.equals("Two Player")){
+            players = new Player[2];
+            startingWalls = 10;
+        }
+        else if(mode.equals("Four Player")){
+            players = new Player[4];
+            startingWalls = 5;
+        }
+
+
+        for (int i = 0; i < players.length; i++) {
+            players[i] = new Player(initialPositions[i][0], initialPositions[i][1], startingWalls);
+        }
+
         currentPlayer = players[0]; // เริ่มต้นที่ player1
         
         setPreferredSize(new Dimension(BOARD_SIZE * CELL_SIZE + 1, BOARD_SIZE * CELL_SIZE + 1));
@@ -66,15 +77,11 @@ public class QuoridorPanel extends JPanel{
     private void resetGame(){
         walls.clear();
 
-        players[1].x = 4;
-        players[1].y = 8;
-        players[0].x = 4;
-        players[0].y = 0;
-//*************************************************** 4 คน ***********************************************
-//      players[1].x = 4;players[1].y = 8;
-//      players[0].x = 4;players[0].y = 0;
-//      players[2].x = 0;players[2].y = 4;
-//      players[3].x = 8;players[3].y = 4;
+        // Assign positions to players
+        for (int i = 0; i < players.length; i++) {
+            players[i].x = initialPositions[i][0];
+            players[i].y = initialPositions[i][1];
+        }
 
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
@@ -86,7 +93,8 @@ public class QuoridorPanel extends JPanel{
         statusPanel.setElapsedTime(-1);
 
         currentPlayer = players[0];
-        Start = true;
+        //TODO :Stop time when declare wins
+        //statusPanel.getTimer().stop();
         repaint();
     }
 
@@ -112,29 +120,37 @@ public class QuoridorPanel extends JPanel{
     }
     
     private void drawPlayers(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(
+            RenderingHints.KEY_ANTIALIASING,
+            RenderingHints.VALUE_ANTIALIAS_ON
+        );
+
     	// g.fillOval วงกลม
     	//(ตำเเหน่ง x,ตำเเหน่ง y,wihth,height)   
     	//(ตำเเหน่ง x,y ไว้เช็คตรงกลางของช่องเดินเช่น(x=4,cell_size=50 ===> 4*50/50/4 = 212.5คือตรงกลางเเกนxที่ตัวเดินวางอยู่))
-        if(currentPlayer == players[0] || Start){
-		g.setColor(Color.BLUE);
-	} else g.setColor(Color.decode("#5d8aa8"));
-        g.fillRect(players[0].x * CELL_SIZE + CELL_SIZE / 4 , players[0].y * CELL_SIZE + CELL_SIZE / 4, CELL_SIZE / 2, CELL_SIZE / 2);
-        if(currentPlayer == players[1] || Start){
-		g.setColor(Color.GREEN);
-	} else g.setColor(Color.decode("#679267"));
-        g.fillRect(players[1].x * CELL_SIZE + CELL_SIZE / 4, players[1].y * CELL_SIZE + CELL_SIZE / 4, CELL_SIZE / 2, CELL_SIZE / 2);
-//*************************************************** 4 คน ***********************************************
-//      Color[] colors = {Color.BLUE, Color.GREEN, Color.RED, Color.PINK}; 
-//      for (int i = 0; i < players.length; i++) {
-//          g.setColor(colors[i]);
-//          g.fillRect(
-//              players[i].x * CELL_SIZE + CELL_SIZE / 4, 
-//              players[i].y * CELL_SIZE + CELL_SIZE / 4, 
-//              CELL_SIZE / 2, CELL_SIZE / 2
-//          );
-//      }
-//  }
-}
+    //     if(currentPlayer == players[0] || start){
+	// 	g2d.setColor(Color.BLUE);
+	// } else g.setColor(Color.decode("#5d8aa8"));
+    //     g2d.fillOval(players[0].x * CELL_SIZE + CELL_SIZE / 4 , players[0].y * CELL_SIZE + CELL_SIZE / 4, CELL_SIZE / 2, CELL_SIZE / 2);
+    //     if(currentPlayer == players[1] || start){
+	// 	g2d.setColor(Color.GREEN);
+	// } else g.setColor(Color.decode("#679267"));
+    //     g2d.fillOval(players[1].x * CELL_SIZE + CELL_SIZE / 4, players[1].y * CELL_SIZE + CELL_SIZE / 4, CELL_SIZE / 2, CELL_SIZE / 2);
+        //*************************************************** 4 คน ***********************************************
+        Color[] colors = {Color.BLUE, Color.GREEN, Color.RED, Color.PINK}; 
+        for (int i = 0; i < players.length; i++) {
+            g.setColor(colors[i]);
+            g.fillOval(
+                players[i].x * CELL_SIZE + CELL_SIZE / 4, 
+                players[i].y * CELL_SIZE + CELL_SIZE / 4, 
+                CELL_SIZE / 2, CELL_SIZE / 2
+            );
+        }
+    
+
+    
+    }
 
     public void addWall(int x, int y, boolean isHorizontal) {
         walls.add(new Wall(x, y, isHorizontal));
@@ -161,7 +177,7 @@ public class QuoridorPanel extends JPanel{
                     currentPlayer.wall--;
         	        switchPlayer(); // สลับตา
         	        System.out.println("Clicked Vertical Wall" + "(" + cellX + "," + cellY + ")");
-                    statusPanel.updateWallsLebel();
+                    statusPanel.updateWallsLabel();
         	    }
         	    else System.out.println("You Cannot Place Vertical Wall at" + "(" + cellX + "," + cellY + ")");
         	}
@@ -175,7 +191,7 @@ public class QuoridorPanel extends JPanel{
                     currentPlayer.wall--;
         	        switchPlayer(); // สลับตา
         	        System.out.println("Clicked Horizontal Wall" + "(" + cellX + "," + cellY + ")");
-                    statusPanel.updateWallsLebel();
+                    statusPanel.updateWallsLabel();
         	    }
         	    else System.out.println("You Cannot Place Horizontal Wall at" + "(" + cellX + "," + cellY + ")");
         	}
@@ -192,36 +208,29 @@ public class QuoridorPanel extends JPanel{
             } else {
                 System.out.println("Invalid move");
             }
-	    Start = false;
         }
 
-        if (players[0].y == 8) {
-        	JOptionPane.showMessageDialog(this, "Player 1 Wins!");
-        	resetGame();
-        } 
-    	
-        else if (players[1].y == 0) {
-        	JOptionPane.showMessageDialog(this, "Player 2 Wins!");
-        	resetGame();
-        }
         //*************************************************** 4 คน ***********************************************
-//      if (players[0].y == 8) {
-//    	JOptionPane.showMessageDialog(this, "Player 1 Wins!");
-//    	resetGame();
-//    } 
-//	
-//    else if (players[1].y == 0) {
-//    	JOptionPane.showMessageDialog(this, "Player 2 Wins!");
-//    	resetGame();
-//    }
-//    else if (players[2].x == 8) {
-//    	JOptionPane.showMessageDialog(this, "Player 3 Wins!");
-//    	resetGame();
-//    }
-//    else if (players[3].x == 0) {
-//    	JOptionPane.showMessageDialog(this, "Player 3 Wins!");
-//    	resetGame();
-//    }
+        for (int i = 0; i < players.length; i++) {
+            if (i == 0 && players[i].y == 8) {
+                JOptionPane.showMessageDialog(this, "Player 1 Wins!");
+                resetGame();
+                break;
+            } else if (i == 1 && players[i].y == 0) {
+                JOptionPane.showMessageDialog(this, "Player 2 Wins!");
+                resetGame();
+                break;
+            } else if (i == 2 && players[i].x == 8) {
+                JOptionPane.showMessageDialog(this, "Player 3 Wins!");
+                resetGame();
+                break;
+            } else if (i == 3 && players[i].x == 0) {
+                JOptionPane.showMessageDialog(this, "Player 4 Wins!");
+                resetGame();
+                break;
+            }
+        }
+
     }
 
    
@@ -333,19 +342,6 @@ public class QuoridorPanel extends JPanel{
 
         while (!queue.isEmpty()) {
             Point current = queue.poll();
-            
-            // ตรวจสอบว่า player ถึงเส้นชัยหรือยัง
-            if (player == players[0] && current.y == BOARD_SIZE - 1) {
-                return true; // player1 ไปถึงเส้นชัย
-            }
-            if (player == players[1] && current.y == 0) {
-                return true; // player2 ไปถึงเส้นชัย
-            }
-//*************************************************** 4 คน ***********************************************
-//          if (player == players[0] && current.y == BOARD_SIZE - 1) return true; // player1 ไปถึงเส้นชัย
-//          if (player == players[1] && current.y == 0) return true; // player2 ไปถึงเส้นชัย
-//          if (player == players[2] && current.x == BOARD_SIZE - 1) return true; // player3 ไปถึง X = BOARD_SIZE - 1
-//          if (player == players[3] && current.x == 0) return true; // player4 ไปถึง X = 0
 
             // ตรวจสอบช่องทางที่สามารถเดินไปได้ (ขึ้น, ลง, ซ้าย, ขวา)
             if (current.x > 0 && !verticalWalls[current.y][current.x] && !visited[current.y][current.x - 1]) { // ซ้าย
@@ -399,10 +395,15 @@ public class QuoridorPanel extends JPanel{
         }
         
         placeHorizontalWall(x, y);
-        boolean pathAvailableForBothPlayers = isPathAvailable(players[0]) && isPathAvailable(players[1]);
-        //*************************************************** 4 คน ***********************************************
-        //boolean pathAvailableForAllPlayers = isPathAvailable(players[0]) && isPathAvailable(players[1]) && isPathAvailable(players[2]) && isPathAvailable(players[3]);
-        // Remove the temporarily placed wall
+
+        boolean pathAvailableForBothPlayers = true;
+        for(Player player : players){
+            if(!isPathAvailable(player)){
+                pathAvailableForBothPlayers = false;
+                break;
+            }
+        }
+
         horizontalWalls[y][x] = false;
         horizontalWalls[y][x+1] = false;
         
@@ -431,11 +432,15 @@ public class QuoridorPanel extends JPanel{
             return false;
         }
         placeVerticalWall(x, y);//วางกำเเพง
-        boolean pathAvailableForBothPlayers = isPathAvailable(players[0]) && isPathAvailable(players[1]);
-        //*************************************************** 4 คน ***********************************************
-        //boolean pathAvailableForAllPlayers = isPathAvailable(players[0]) && isPathAvailable(players[1]) && isPathAvailable(players[2]) && isPathAvailable(players[3]);
 
-        // Remove the temporarily placed wall
+        boolean pathAvailableForBothPlayers = true;
+        for(Player player : players){
+            if(!isPathAvailable(player)){
+                pathAvailableForBothPlayers = false;
+                break;
+            }
+        }
+
         verticalWalls[y][x] = false;
         verticalWalls[y+1][x] = false;
 
