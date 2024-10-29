@@ -42,7 +42,7 @@ public class QuoridorMain extends JFrame {
         setLayout(new BorderLayout());
 
         gamePanel = new QuoridorPanel(mode);
-        statusPanel = new StatusPanel(gamePanel.getPlayers());
+        statusPanel = new StatusPanel(gamePanel.getPlayers(),gamePanel.getCurrentPlayer());
         gamePanel.setStatusPanel(statusPanel);
         add(gamePanel, BorderLayout.CENTER);
         add(statusPanel, BorderLayout.EAST);

@@ -42,6 +42,9 @@ public class QuoridorPanel extends JPanel{
         this.statusPanel = statusPanel;
     }
 
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
 
     public QuoridorPanel(String mode) {
         walls = new ArrayList<>();
@@ -86,6 +89,8 @@ public class QuoridorPanel extends JPanel{
         drawPlayers(g);
         drawWallPreview(g);
     }
+
+    
 
     private void resetGame(){
         walls.clear();
@@ -381,6 +386,7 @@ public class QuoridorPanel extends JPanel{
     private void switchPlayer() {
     	int currentIndex = Arrays.asList(players).indexOf(currentPlayer);
     	currentPlayer = players[(currentIndex + 1) % players.length];
+        statusPanel.updatePlayerPanel(currentPlayer);
     }
     
     private boolean isPathAvailable(Player player) {
