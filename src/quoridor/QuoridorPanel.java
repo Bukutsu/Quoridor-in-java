@@ -80,7 +80,6 @@ public class QuoridorPanel extends JPanel{
      
     }
 
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -89,32 +88,6 @@ public class QuoridorPanel extends JPanel{
         drawPlayers(g);
         drawWallPreview(g);
     }
-
-    
-
-    private void resetGame(){
-        walls.clear();
-
-        // Assign positions to players
-        for (int i = 0; i < players.length; i++) {
-            players[i].x = initialPositions[i][0];
-            players[i].y = initialPositions[i][1];
-        }
-
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
-                horizontalWalls[i][j] = false;
-                verticalWalls[i][j] = false;
-            }
-        }
-
-        statusPanel.setElapsedTime(-1);
-
-        currentPlayer = players[0];
-        statusPanel.getTimer().start();
-        repaint();
-    }
-
 
     private void drawBoard(Graphics g) {
         g.setColor(Color.BLACK);
@@ -141,7 +114,6 @@ public class QuoridorPanel extends JPanel{
         }
     }
 
-
     private void drawWalls(Graphics g) {
         g.setColor(Color.RED);
         for (Wall wall : walls) {
@@ -155,7 +127,6 @@ public class QuoridorPanel extends JPanel{
         }
     }
 
-    
     private void drawPlayers(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(
@@ -163,9 +134,8 @@ public class QuoridorPanel extends JPanel{
             RenderingHints.VALUE_ANTIALIAS_ON
         );
 
-        Color[] colors = {Color.BLUE, Color.GREEN, Color.RED, Color.PINK}; 
         for (int i = 0; i < players.length; i++) {
-            g.setColor(colors[i]);
+            g.setColor(PlayerColorStore.getPlayerColor(i));
             g.fillOval(
                 players[i].x * CELL_SIZE + CELL_SIZE / 4, 
                 players[i].y * CELL_SIZE + CELL_SIZE / 4, 
@@ -173,6 +143,29 @@ public class QuoridorPanel extends JPanel{
             );
         }
     
+    }
+
+    private void resetGame(){
+        walls.clear();
+
+        // Assign positions to players
+        for (int i = 0; i < players.length; i++) {
+            players[i].x = initialPositions[i][0];
+            players[i].y = initialPositions[i][1];
+        }
+
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                horizontalWalls[i][j] = false;
+                verticalWalls[i][j] = false;
+            }
+        }
+
+        statusPanel.setElapsedTime(-1);
+
+        currentPlayer = players[0];
+        statusPanel.getTimer().start();
+        repaint();
     }
 
     public void addWall(int x, int y, boolean isHorizontal) {
@@ -265,7 +258,6 @@ public class QuoridorPanel extends JPanel{
             }
         }
 
-        //*************************************************** 4 คน ***********************************************
         for (int i = 0; i < players.length; i++) {
             if (i == 0 && players[i].y == 8) {
                 statusPanel.getTimer().stop();
@@ -289,10 +281,8 @@ public class QuoridorPanel extends JPanel{
                 break;
             }
         }
-
     }
 
-   
     private boolean isMoveValid(Player player, int x, int y) {
         // ตรวจสอบตำแหน่งปัจจุบันของผู้เล่น
         int dx = Math.abs(player.x - x);
@@ -383,6 +373,7 @@ public class QuoridorPanel extends JPanel{
         }
         return false;  //เดินผิดตำเเหน่ง
     }
+
     private void switchPlayer() {
     	int currentIndex = Arrays.asList(players).indexOf(currentPlayer);
     	currentPlayer = players[(currentIndex + 1) % players.length];
@@ -404,22 +395,21 @@ public class QuoridorPanel extends JPanel{
                 break;
             }
         }
-    
+        
         // Check winning conditions based on the player's index
         switch (playerIndex) {
             case 0:
-                return current.y == BOARD_SIZE - 1; // Player 1 wins if they reach y = BOARD_SIZE - 1
+                return current.y == BOARD_SIZE - 1; // Player 1 wins if they reach y = 8
             case 1:
                 return current.y == 0; // Player 2 wins if they reach y = 0
             case 2:
-                return current.x == BOARD_SIZE - 1; // Player 3 wins if they reach x = BOARD_SIZE - 1
+                return current.x == BOARD_SIZE - 1; // Player 3 wins if they reach x = 8
             case 3:
                 return current.x == 0; // Player 4 wins if they reach x = 0
             default:
-                return false; // In case the player is not recognized
+                return false;
         }
     }
-
 
     private boolean bfs(Player player, boolean[][] visited) {
         // ใช้ Queue สำหรับการ BFS

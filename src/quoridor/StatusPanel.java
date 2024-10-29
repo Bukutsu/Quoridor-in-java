@@ -77,7 +77,7 @@ public class StatusPanel extends JPanel {
             playerIconPanel.setLayout(new BoxLayout(playerIconPanel, BoxLayout.Y_AXIS));
             playerIconPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
             
-            PlayerColorIndicator colorIndicator = new PlayerColorIndicator(getPlayerColor(i), 30); // Create a custom color indicator with 30px diameter
+            PlayerColorIndicator colorIndicator = new PlayerColorIndicator(PlayerColorStore.getPlayerColor(i), 30); // Create a custom color indicator with 30px diameter
 
             JLabel playerNameLabel = new JLabel("Player " + (i + 1));
             playerNameLabel.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -108,22 +108,6 @@ public class StatusPanel extends JPanel {
             updateStatusPanel();
         });
         timer.start();
-    }
-
-    // Helper method to get the color for each player
-    private Color getPlayerColor(int playerIndex) {
-        switch (playerIndex) {
-            case 0:
-                return Color.RED;
-            case 1:
-                return Color.BLUE;
-            case 2:
-                return Color.GREEN;
-            case 3:
-                return Color.GRAY;
-            default:
-                return Color.BLACK;
-        }
     }
 
     // Custom component to draw a circle with a specified color
