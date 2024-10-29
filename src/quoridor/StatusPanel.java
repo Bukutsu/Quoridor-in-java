@@ -10,6 +10,7 @@ public class StatusPanel extends JPanel {
     private JLabel[] playerWallsLabel;
     private Player[] players;
     private int elapsedTime = 0;
+    private JPanel[] playerPanel;
 
     public Timer getTimer() {
         return timer;
@@ -32,7 +33,18 @@ public class StatusPanel extends JPanel {
         }
     }
 
-    public StatusPanel(Player[] players) {
+    public void updatePlayerPanel(Player currentPlayer){
+        for (int i = 0; i < players.length; i++) {
+            if(players[i].equals(currentPlayer)){
+                playerPanel[i].setBackground(new Color(255, 230, 230));// Light red background to make it look nicer
+                playerPanel[i].setBorder(BorderFactory.createLineBorder(Color.RED));// Red border for each player section
+            }else{
+                playerPanel[i].setBackground(Color.LIGHT_GRAY);
+                playerPanel[i].setBorder(BorderFactory.createLineBorder(Color.GRAY));
+            }
+        }
+    }
+    public StatusPanel(Player[] players,Player currentPlayer) {
         this.players = players;
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -49,12 +61,17 @@ public class StatusPanel extends JPanel {
 
         // Player Wall Labels
         playerWallsLabel = new JLabel[players.length];
+        playerPanel = new JPanel[players.length];
         for (int i = 0; i < players.length; i++) {
-            JPanel playerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // A panel for each player with FlowLayout
-            playerPanel.setBackground(new Color(255, 230, 230)); // Light red background to make it look nicer
-            playerPanel.setBorder(BorderFactory.createLineBorder(Color.RED)); // Red border for each player section
-            playerPanel.setMaximumSize(new Dimension(200, 100)); // Fix the size to make it consistent
-
+            playerPanel[i] = new JPanel(new FlowLayout(FlowLayout.LEFT)); // A panel for each player with FlowLayout
+            playerPanel[i].setMaximumSize(new Dimension(200, 75)); // Fix the size to make it consistent
+            if(players[i].equals(currentPlayer)){
+                playerPanel[i].setBackground(new Color(255, 230, 230));// Light red background to make it look nicer
+                playerPanel[i].setBorder(BorderFactory.createLineBorder(Color.RED));// Red border for each player section
+            }else{
+                playerPanel[i].setBackground(Color.LIGHT_GRAY);
+                playerPanel[i].setBorder(BorderFactory.createLineBorder(Color.GRAY));
+            }
             // Player Color Indicator (Circle)
             JPanel playerIconPanel = new JPanel();
             playerIconPanel.setLayout(new BoxLayout(playerIconPanel, BoxLayout.Y_AXIS));
@@ -68,17 +85,18 @@ public class StatusPanel extends JPanel {
             
             playerIconPanel.add(colorIndicator);
             playerIconPanel.add(playerNameLabel);
-
+            playerIconPanel.setOpaque(false);
             // Player Wall Count Label
             playerWallsLabel[i] = new JLabel("Walls: " + players[i].wall);
             playerWallsLabel[i].setFont(new Font("Arial", Font.PLAIN, 14));
 
             // Add components to player panel
-            playerPanel.add(playerIconPanel);
-            playerPanel.add(playerWallsLabel[i]);
+            
+            playerPanel[i].add(playerIconPanel);
+            playerPanel[i].add(playerWallsLabel[i]);
 
             // Add player panel to the main panel
-            add(playerPanel);
+            add(playerPanel[i]);
 
             // Space between player panels
             add(Box.createRigidArea(new Dimension(0, 10)));
@@ -117,11 +135,12 @@ public class StatusPanel extends JPanel {
             this.color = color;
             this.diameter = diameter;
             setPreferredSize(new Dimension(diameter + 10, diameter + 10)); // Add some padding around the circle
+            setOpaque(false);
         }
 
         @Override
         protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
+            // super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g;
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2d.setColor(color);
