@@ -1,8 +1,10 @@
 package quoridor;
-import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Queue;
+import java.util.LinkedList;
+import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
@@ -12,12 +14,14 @@ public class QuoridorPanel extends JPanel{
     private Player players[];
     private Player currentPlayer; // ผู้เล่นคนที่กำลังมีสิทธิ์เดิน
     private StatusPanel statusPanel;
+    int startingWalls = 0;
     private int previewX = -1;
     private int previewY = -1;
     private boolean previewHorizontal = true;
     private boolean isPreviewing = false;
+    private boolean playerSelected = false;
+    private List<Point> validMoves = new ArrayList<>();
 
-    
     private static final int BOARD_SIZE = 9;
     private static final int CELL_SIZE = 50;
     private static final int WALL_THICKNESS = 8;
@@ -49,7 +53,7 @@ public class QuoridorPanel extends JPanel{
 
     public QuoridorPanel(String mode) {
         walls = new ArrayList<>();
-        int startingWalls = 0;
+        
         if(mode.equals("Two Player")){
             players = new Player[2];
             startingWalls = 10;
@@ -88,6 +92,7 @@ public class QuoridorPanel extends JPanel{
         drawWalls(g);
         drawPlayers(g);
         drawWallPreview(g);
+        drawMovePreview(g);
     }
 
     private void drawBoard(Graphics g) {
@@ -116,8 +121,9 @@ public class QuoridorPanel extends JPanel{
     }
 
     private void drawWalls(Graphics g) {
-        g.setColor(Color.RED);
+        
         for (Wall wall : walls) {
+            g.setColor(wall.color);
             int x = wall.x * CELL_SIZE;
             int y = wall.y * CELL_SIZE;
             if (wall.isHorizontal) {
@@ -125,6 +131,22 @@ public class QuoridorPanel extends JPanel{
             } else {
                 g.fillRect(x - WALL_THICKNESS / 2, y, WALL_THICKNESS, CELL_SIZE * 2);
             }
+        }
+    }
+
+    private void drawMovePreview(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setColor(new Color(0, 255, 0, 128)); // Light green with some transparency
+    
+        // Draw a preview for each valid move
+        for (Point move : validMoves) {
+            g2d.fillOval(
+                move.x * CELL_SIZE + CELL_SIZE / 4,
+                move.y * CELL_SIZE + CELL_SIZE / 4,
+                CELL_SIZE / 2,
+                CELL_SIZE / 2
+            );
         }
     }
 
@@ -153,6 +175,7 @@ public class QuoridorPanel extends JPanel{
         for (int i = 0; i < players.length; i++) {
             players[i].x = initialPositions[i][0];
             players[i].y = initialPositions[i][1];
+            players[i].wall = startingWalls;
         }
 
         for (int i = 0; i < BOARD_SIZE; i++) {
@@ -170,7 +193,7 @@ public class QuoridorPanel extends JPanel{
     }
 
     public void addWall(int x, int y, boolean isHorizontal) {
-        walls.add(new Wall(x, y, isHorizontal));
+        walls.add(new Wall(x, y, isHorizontal, PlayerColorStore.getPlayerColor(Arrays.asList(players).indexOf(currentPlayer))));
         repaint();
     }
 
@@ -212,11 +235,43 @@ public class QuoridorPanel extends JPanel{
         // Check if click is close to a vertical line
         int cellX = x / CELL_SIZE;
         int cellY = y / CELL_SIZE;
-        
 
         if (e.getButton() == MouseEvent.BUTTON1) {
+            Point clickedCell = new Point(cellX, cellY);
+        
+            if (!playerSelected) {
+                // Select the player if clicked on the current player's position
+                if (cellX == currentPlayer.x && cellY == currentPlayer.y) {
+                    playerSelected = true;
+                    validMoves.clear();
+
+                    // Calculate valid moves around the current player
+                    calculateValidMoves();
+                    
+                    repaint(); // Repaint to show move previews
+                    System.out.println("Player selected at (" + cellX + ", " + cellY + ")");
+                }
+            } else {
+                // If player is already selected, attempt to move to the clicked cell
+                if (validMoves.contains(clickedCell)) {
+                    currentPlayer.x = cellX;
+                    currentPlayer.y = cellY;
+
+                    // Clear selection and previews, and switch to the next player
+                    playerSelected = false;
+                    validMoves.clear();
+                    switchPlayer();
+                    repaint();
+
+                    System.out.println("Player moved to (" + cellX + ", " + cellY + ")");
+                } else {
+                    System.out.println("Invalid move");
+                }
+            }
         	// Clicked near a vertical line
         	if (isCloseToVerticalLine(x)) {
+                playerSelected = false;
+                validMoves.clear();
                 if(currentPlayer.wall < 1){
                     System.out.println("Player out of wall!");
                 } 
@@ -231,6 +286,8 @@ public class QuoridorPanel extends JPanel{
         	    else System.out.println("You Cannot Place Vertical Wall at" + "(" + cellX + "," + cellY + ")");
         	}
         	else if (isCloseToHorizontalLine(y)) {
+                playerSelected = false;
+                validMoves.clear();
                 if(currentPlayer.wall < 1){
                     System.out.println("Player out of wall!");
                 } 
@@ -244,20 +301,8 @@ public class QuoridorPanel extends JPanel{
         	    }
         	    else System.out.println("You Cannot Place Horizontal Wall at" + "(" + cellX + "," + cellY + ")");
         	}
-         
-        } else if (e.getButton() == MouseEvent.BUTTON3) {
-            // คลิกขวา: เดินผู้เล่น
-        	if (isMoveValid(currentPlayer, cellX, cellY)) {
-                currentPlayer.x = cellX;
-                currentPlayer.y = cellY;
-                switchPlayer(); // สลับตา
-                repaint(); // วาดใหม่หลังเดิน
-		        
-                System.out.println("Player moved to " + "(" + cellX + "," + cellY + ")");
-            } else {
-                System.out.println("Invalid move");
-            }
-        }
+        } 
+        
 
         for (int i = 0; i < players.length; i++) {
             if (i == 0 && players[i].y == 8) {
@@ -283,6 +328,63 @@ public class QuoridorPanel extends JPanel{
             }
         }
     }
+
+    private void calculateValidMoves() {
+        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}}; // Up, down, right, left
+    
+        // Loop through each direction to find valid moves
+        for (int[] dir : directions) {
+            int newX = currentPlayer.x + dir[0];
+            int newY = currentPlayer.y + dir[1];
+    
+            // Check if within board boundaries
+            if (newX >= 0 && newY >= 0 && newX < BOARD_SIZE && newY < BOARD_SIZE) {
+                if (isMoveValid(currentPlayer, newX, newY)) {
+                    // If the move is valid, add it to movePreviews
+                    validMoves.add(new Point(newX, newY));
+                } else {
+                    // Check if there's a player in the adjacent cell and handle jump-over
+                    Player blockingPlayer = null;
+                    for (Player other : players) {
+                        if (other != currentPlayer && other.x == newX && other.y == newY) {
+                            blockingPlayer = other;
+                            break;
+                        }
+                    }
+    
+                    if (blockingPlayer != null) {
+                        // Calculate jump-over position
+                        int jumpX = newX + dir[0];
+                        int jumpY = newY + dir[1];
+    
+                        // Check if the jump-over move is valid
+                        if (jumpX >= 0 && jumpY >= 0 && jumpX < BOARD_SIZE && jumpY < BOARD_SIZE) {
+                            if (isMoveValid(currentPlayer, jumpX, jumpY)) {
+                                validMoves.add(new Point(jumpX, jumpY));
+                            } else {
+                                // If jump is blocked, check diagonal moves
+                                int[][] diagonalDirections = {
+                                    {dir[1], dir[0]}, {-dir[1], dir[0]}
+                                };
+                                for (int[] diagDir : diagonalDirections) {
+                                    int diagX = newX + diagDir[0];
+                                    int diagY = newY + diagDir[1];
+    
+                                    if (diagX >= 0 && diagY >= 0 && diagX < BOARD_SIZE && diagY < BOARD_SIZE) {
+                                        if (isMoveValid(currentPlayer, diagX, diagY)) {
+                                            validMoves.add(new Point(diagX, diagY));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+
 
     private boolean isMoveValid(Player player, int x, int y) {
         // ตรวจสอบตำแหน่งปัจจุบันของผู้เล่น
