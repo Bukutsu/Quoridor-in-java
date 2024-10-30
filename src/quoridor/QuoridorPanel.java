@@ -189,6 +189,7 @@ public class QuoridorPanel extends JPanel{
 
         currentPlayer = players[0];
         statusPanel.getTimer().start();
+        statusPanel.updatePlayerPanel(currentPlayer);
         repaint();
     }
 
@@ -236,9 +237,45 @@ public class QuoridorPanel extends JPanel{
         int cellX = x / CELL_SIZE;
         int cellY = y / CELL_SIZE;
 
+       
         if (e.getButton() == MouseEvent.BUTTON1) {
             Point clickedCell = new Point(cellX, cellY);
-        
+            
+
+             // Clicked near a vertical line
+            if (isCloseToVerticalLine(x)) {
+                playerSelected = false;
+                validMoves.clear();
+                if(currentPlayer.wall < 1){
+                    System.out.println("Player out of wall!");
+                } 
+                else if (canPlaceVerticalWall(cellX, cellY)) {
+                    placeVerticalWall(cellX, cellY);
+                    addWall(cellX, cellY, false);
+                    currentPlayer.wall--;
+                    switchPlayer(); // สลับตา
+                    System.out.println("Clicked Vertical Wall" + "(" + cellX + "," + cellY + ")");
+                    statusPanel.updateWallsLabel();
+                }
+                else System.out.println("You Cannot Place Vertical Wall at" + "(" + cellX + "," + cellY + ")");
+            }
+            else if (isCloseToHorizontalLine(y)) {
+                playerSelected = false;
+                validMoves.clear();
+                if(currentPlayer.wall < 1){
+                    System.out.println("Player out of wall!");
+                } 
+                else if (canPlaceHorizontalWall(cellX, cellY)) {
+                    placeHorizontalWall(cellX, cellY);
+                    addWall(cellX, cellY, true);
+                    currentPlayer.wall--;
+                    switchPlayer(); // สลับตา
+                    System.out.println("Clicked Horizontal Wall" + "(" + cellX + "," + cellY + ")");
+                    statusPanel.updateWallsLabel();
+                }
+                else System.out.println("You Cannot Place Horizontal Wall at" + "(" + cellX + "," + cellY + ")");
+            }
+
             if (!playerSelected) {
                 // Select the player if clicked on the current player's position
                 if (cellX == currentPlayer.x && cellY == currentPlayer.y) {
@@ -268,39 +305,7 @@ public class QuoridorPanel extends JPanel{
                     System.out.println("Invalid move");
                 }
             }
-        	// Clicked near a vertical line
-        	if (isCloseToVerticalLine(x)) {
-                playerSelected = false;
-                validMoves.clear();
-                if(currentPlayer.wall < 1){
-                    System.out.println("Player out of wall!");
-                } 
-        	    else if (canPlaceVerticalWall(cellX, cellY)) {
-        	        placeVerticalWall(cellX, cellY);
-        	        addWall(cellX, cellY, false);
-                    currentPlayer.wall--;
-        	        switchPlayer(); // สลับตา
-        	        System.out.println("Clicked Vertical Wall" + "(" + cellX + "," + cellY + ")");
-                    statusPanel.updateWallsLabel();
-        	    }
-        	    else System.out.println("You Cannot Place Vertical Wall at" + "(" + cellX + "," + cellY + ")");
-        	}
-        	else if (isCloseToHorizontalLine(y)) {
-                playerSelected = false;
-                validMoves.clear();
-                if(currentPlayer.wall < 1){
-                    System.out.println("Player out of wall!");
-                } 
-        	    else if (canPlaceHorizontalWall(cellX, cellY)) {
-        	        placeHorizontalWall(cellX, cellY);
-        	        addWall(cellX, cellY, true);
-                    currentPlayer.wall--;
-        	        switchPlayer(); // สลับตา
-        	        System.out.println("Clicked Horizontal Wall" + "(" + cellX + "," + cellY + ")");
-                    statusPanel.updateWallsLabel();
-        	    }
-        	    else System.out.println("You Cannot Place Horizontal Wall at" + "(" + cellX + "," + cellY + ")");
-        	}
+        	
         } 
         
 
@@ -340,7 +345,7 @@ public class QuoridorPanel extends JPanel{
             // Check if within board boundaries
             if (newX >= 0 && newY >= 0 && newX < BOARD_SIZE && newY < BOARD_SIZE) {
                 if (isMoveValid(currentPlayer, newX, newY)) {
-                    // If the move is valid, add it to movePreviews
+                    // If the move is valid, add it to validMoves
                     validMoves.add(new Point(newX, newY));
                 } else {
                     // Check if there's a player in the adjacent cell and handle jump-over
@@ -361,20 +366,26 @@ public class QuoridorPanel extends JPanel{
                         if (jumpX >= 0 && jumpY >= 0 && jumpX < BOARD_SIZE && jumpY < BOARD_SIZE) {
                             if (isMoveValid(currentPlayer, jumpX, jumpY)) {
                                 validMoves.add(new Point(jumpX, jumpY));
-                            } else {
-                                // If jump is blocked, check diagonal moves
-                                int[][] diagonalDirections = {
-                                    {dir[1], dir[0]}, {-dir[1], dir[0]}
-                                };
-                                for (int[] diagDir : diagonalDirections) {
-                                    int diagX = newX + diagDir[0];
-                                    int diagY = newY + diagDir[1];
+                            }
+                        } 
     
-                                    if (diagX >= 0 && diagY >= 0 && diagX < BOARD_SIZE && diagY < BOARD_SIZE) {
-                                        if (isMoveValid(currentPlayer, diagX, diagY)) {
-                                            validMoves.add(new Point(diagX, diagY));
-                                        }
-                                    }
+                        // If the jump is blocked or out of bounds, check diagonal moves
+                        int[][] diagonalDirections;
+    
+                        if (dir[0] == 0) { // Moving vertically (up or down)
+                            diagonalDirections = new int[][]{{1, 0}, {-1, 0}}; // Try moving left or right
+                        } else { // Moving horizontally (left or right)
+                            diagonalDirections = new int[][]{{0, 1}, {0, -1}}; // Try moving up or down
+                        }
+    
+                        for (int[] diagDir : diagonalDirections) {
+                            int diagX = blockingPlayer.x + diagDir[0];
+                            int diagY = blockingPlayer.y + diagDir[1];
+    
+                            if (diagX >= 0 && diagY >= 0 && diagX < BOARD_SIZE && diagY < BOARD_SIZE) {
+                                // Check if diagonal move is valid
+                                if (isMoveValid(currentPlayer, diagX, diagY)) {
+                                    validMoves.add(new Point(diagX, diagY));
                                 }
                             }
                         }
@@ -383,6 +394,7 @@ public class QuoridorPanel extends JPanel{
             }
         }
     }
+    
     
 
 
