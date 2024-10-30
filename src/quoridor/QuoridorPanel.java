@@ -25,6 +25,7 @@ public class QuoridorPanel extends JPanel{
     private static final int BOARD_SIZE = 9;
     private static final int CELL_SIZE = 50;
     private static final int WALL_THICKNESS = 8;
+    private static final float GRID_LINE_THICKNESS = (float)2.3;
 
     //wall click sensitivity
     private static final int CLICK_TOLERANCE = 10;
@@ -96,10 +97,15 @@ public class QuoridorPanel extends JPanel{
     }
 
     private void drawBoard(Graphics g) {
-        g.setColor(Color.BLACK);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        g2d.setStroke(new BasicStroke(GRID_LINE_THICKNESS));
+
+        g2d.setColor(Color.decode("#2f4858"));
         for (int i = 0; i <= BOARD_SIZE; i++) {
-            g.drawLine(i * CELL_SIZE, 0, i * CELL_SIZE, BOARD_SIZE * CELL_SIZE);
-            g.drawLine(0, i * CELL_SIZE, BOARD_SIZE * CELL_SIZE, i * CELL_SIZE);
+            g2d.drawLine(i * CELL_SIZE, 0, i * CELL_SIZE, BOARD_SIZE * CELL_SIZE);
+            g2d.drawLine(0, i * CELL_SIZE, BOARD_SIZE * CELL_SIZE, i * CELL_SIZE);
         }
     }
 
@@ -121,15 +127,17 @@ public class QuoridorPanel extends JPanel{
     }
 
     private void drawWalls(Graphics g) {
-        
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
         for (Wall wall : walls) {
-            g.setColor(wall.color);
+            g2d.setColor(wall.color);
             int x = wall.x * CELL_SIZE;
             int y = wall.y * CELL_SIZE;
             if (wall.isHorizontal) {
-                g.fillRect(x, y - WALL_THICKNESS / 2, CELL_SIZE * 2, WALL_THICKNESS);
+                g2d.fillRect(x, y - WALL_THICKNESS / 2, CELL_SIZE * 2, WALL_THICKNESS);
             } else {
-                g.fillRect(x - WALL_THICKNESS / 2, y, WALL_THICKNESS, CELL_SIZE * 2);
+                g2d.fillRect(x - WALL_THICKNESS / 2, y, WALL_THICKNESS, CELL_SIZE * 2);
             }
         }
     }

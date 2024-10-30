@@ -30,6 +30,8 @@ public class QuoridorMain extends JFrame {
                 System.exit(0); // Terminate the entire program if the setup dialog is closed
             }
         });
+
+        
     
         setupDialog.pack(); // Adjust the size of the dialog to fit its contents
         setupDialog.setVisible(true); // Display the dialog
@@ -39,9 +41,10 @@ public class QuoridorMain extends JFrame {
         setTitle("Quoridor");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 600);
+        setResizable(false);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-
+        
         gamePanel = new QuoridorPanel(mode);
         statusPanel = new StatusPanel(gamePanel.getPlayers(),gamePanel.getCurrentPlayer(),setupPanel.getPlayerNames());
         gamePanel.setStatusPanel(statusPanel);
@@ -61,7 +64,12 @@ public class QuoridorMain extends JFrame {
         // });
 
         SwingUtilities.invokeLater(() -> {
-            // Show the game setup dialog first
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
             showGameSetupDialog();
         });
 

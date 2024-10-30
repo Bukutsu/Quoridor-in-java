@@ -12,6 +12,11 @@ public class StatusPanel extends JPanel {
     private JPanel[] playerPanel;
     private int elapsedTime = 0;
 
+    private static final Color CURRENT_TURN_BACKGROUND_COLOR = Color.decode("#baede5");
+    private static final Color CURRENT_TURN_BORDER_COLOR = Color.decode("#84b5ad");
+    private static final Color BACKGROUND_COLOR = Color.decode("#b4aa99");
+    private static final Color BORDER_COLOR = Color.decode("#41686f");
+
     public Timer getTimer() {
         return timer;
     }
@@ -36,11 +41,11 @@ public class StatusPanel extends JPanel {
     public void updatePlayerPanel(Player currentPlayer) {
         for (int i = 0; i < players.length; i++) {
             if (players[i].equals(currentPlayer)) {
-                playerPanel[i].setBackground(new Color(255, 230, 230)); // Light red background to indicate active player
-                playerPanel[i].setBorder(BorderFactory.createLineBorder(Color.RED)); // Red border for each player section
+                playerPanel[i].setBackground(CURRENT_TURN_BACKGROUND_COLOR); // Light red background for active player
+                playerPanel[i].setBorder(BorderFactory.createLineBorder(CURRENT_TURN_BORDER_COLOR)); // Red border for active player section
             } else {
-                playerPanel[i].setBackground(Color.LIGHT_GRAY);
-                playerPanel[i].setBorder(BorderFactory.createLineBorder(Color.GRAY));
+                playerPanel[i].setBackground(BACKGROUND_COLOR);
+                playerPanel[i].setBorder(BorderFactory.createLineBorder(BORDER_COLOR));
             }
         }
     }
@@ -68,11 +73,11 @@ public class StatusPanel extends JPanel {
             playerPanel[i].setMaximumSize(new Dimension(250, 75)); // Fix the size to make it consistent
 
             if (players[i].equals(currentPlayer)) {
-                playerPanel[i].setBackground(new Color(255, 230, 230)); // Light red background for active player
-                playerPanel[i].setBorder(BorderFactory.createLineBorder(Color.RED)); // Red border for active player section
+                playerPanel[i].setBackground(CURRENT_TURN_BACKGROUND_COLOR); // Light red background for active player
+                playerPanel[i].setBorder(BorderFactory.createLineBorder(CURRENT_TURN_BORDER_COLOR)); // Red border for active player section
             } else {
-                playerPanel[i].setBackground(Color.LIGHT_GRAY);
-                playerPanel[i].setBorder(BorderFactory.createLineBorder(Color.GRAY));
+                playerPanel[i].setBackground(BACKGROUND_COLOR);
+                playerPanel[i].setBorder(BorderFactory.createLineBorder(BORDER_COLOR));
             }
 
             // Player Color Indicator (Circle)
