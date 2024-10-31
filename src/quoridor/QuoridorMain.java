@@ -6,7 +6,7 @@ public class QuoridorMain extends JFrame {
     private QuoridorPanel gamePanel;
     private StatusPanel statusPanel;
     private static GameSetupPanel setupPanel;
-
+    private static final Color BACKGROUND_COLOR = Color.decode("#faf6ed");
 
     private static void showGameSetupDialog() {
         JDialog setupDialog = new JDialog();
@@ -50,7 +50,7 @@ public class QuoridorMain extends JFrame {
         gamePanel.setStatusPanel(statusPanel);
         gamePanel.setOpaque(false);
         statusPanel.setOpaque(false);
-        getContentPane().setBackground(Color.decode("#f4e1c1"));
+        getContentPane().setBackground(BACKGROUND_COLOR);
         add(gamePanel, BorderLayout.CENTER);
         add(statusPanel, BorderLayout.EAST);
         pack();    

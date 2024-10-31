@@ -132,7 +132,6 @@ public class StatusPanel extends JPanel {
 
         @Override
         protected void paintComponent(Graphics g) {
-            // Do not call super.paintComponent(g) to avoid painting default background
             Graphics2D g2d = (Graphics2D) g;
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2d.setColor(color);

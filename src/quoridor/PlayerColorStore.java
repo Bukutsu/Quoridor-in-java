@@ -7,10 +7,10 @@ public class PlayerColorStore {
     private static final HashMap<Integer, Color> playerColors = new HashMap<>();
 
     static {
-        playerColors.put(0, Color.RED);
-        playerColors.put(1, Color.BLUE);
-        playerColors.put(2, Color.GREEN);
-        playerColors.put(3, Color.YELLOW);
+        playerColors.put(0, Color.decode("#3498db"));
+        playerColors.put(1, Color.decode("#e74c3c"));
+        playerColors.put(2, Color.decode("#2ecc71"));
+        playerColors.put(3, Color.decode("#9b59b6"));
     }
 
     public static Color getPlayerColor(int playerIndex) {

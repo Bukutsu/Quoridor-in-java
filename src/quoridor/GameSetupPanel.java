@@ -120,7 +120,7 @@ public class GameSetupPanel extends JPanel {
     
             // Color selection button
             chooseColorButton = new JButton("Choose Color");
-            colorIndicator = new PlayerColorIndicator(Color.LIGHT_GRAY, 30); // Initially set to gray indicating no color selected
+            colorIndicator = new PlayerColorIndicator(PlayerColorStore.getPlayerColor(playerIndex), 30); // Initially set to gray indicating no color selected
     
             chooseColorButton.addActionListener(e -> {
                 // Open color picker dialog
