@@ -407,102 +407,120 @@ public class QuoridorPanel extends JPanel{
 
 
     private boolean isMoveValid(Player player, int x, int y) {
-        // Don't allow moving to spaces with other players
-        for (Player other : players) {
-            if (other != player && x == other.x && y == other.y) {
-                return false;
-            }
-        }
-    
+        // ตรวจสอบตำแหน่งปัจจุบันของผู้เล่น
         int dx = Math.abs(player.x - x);
         int dy = Math.abs(player.y - y);
-    
-        // Normal move (1 step horizontally or vertically)
+        for (Player other : players) {
+          if (other != player && x == other.x && y == other.y) {
+              return false; // ไม่อนุญาตให้เดินไปทับตำแหน่งที่มีผู้เล่นคนอื่นอยู่
+          }
+      }
+        // ตรวจสอบว่ากำลังเดินในแนวนอนหรือแนวตั้งที่ห่างกัน 1 ช่อง
         if ((dx == 1 && dy == 0) || (dx == 0 && dy == 1)) {
-            // Moving right
-            if (x > player.x) return !verticalWalls[player.y][player.x + 1];
-            // Moving left
-            if (x < player.x) return !verticalWalls[player.y][player.x];
-            // Moving down
-            if (y > player.y) return !horizontalWalls[player.y + 1][player.x];
-            // Moving up
-            if (y < player.y) return !horizontalWalls[player.y][player.x];
-        }
-    
-        // Jump move (2 steps over another player)
-        if (dx == 2 && dy == 0) {  // Horizontal jump
-            for (Player other : players) {
-                // Jump right
-                if (other != player && player.x + 1 == other.x && player.y == other.y) {
-                    if (x > player.x && !verticalWalls[player.y][player.x + 2] && 
-                        !verticalWalls[player.y][player.x + 1]) {
-                        return true;
-                    }
+            if (dx == 1) { // การเคลื่อนที่ในแนวนอน
+                if (x > player.x) { // เดินขวา
+                    if (!verticalWalls[player.y][player.x + 1]) return true; //ไม่มีกำเเพง
+                    else return false; // มีกำแพงขวางทาง
+                } else { // เดินซ้าย
+                    if (!verticalWalls[player.y][player.x]) return true; //ไม่มีกำเเพง
+                    else return false; // มีกำแพง
                 }
-                // Jump left
-                if (other != player && player.x - 1 == other.x && player.y == other.y) {
-                    if (x < player.x && !verticalWalls[player.y][player.x - 1] && 
-                        !verticalWalls[player.y][player.x]) {
-                        return true;
-                    }
+            } else if (dy == 1) { // แนวตั้ง
+                if (y > player.y) { // เดินลง
+                    if (!horizontalWalls[player.y + 1][player.x]) return true; //ไม่มีกำเเพง
+                    else return false; // มีกำแพงขวางทาง
+                } else { // เดินขึ้น
+                    if (!horizontalWalls[player.y][player.x]) return true; //ไม่มีกำเเพง
+                    else return false; // มีกำแพง
                 }
             }
         }
-    
-        if (dy == 2 && dx == 0) {  // Vertical jump
+	// เดินข้ามผู้เล่นอื่น
+       if (dy == 2 && dx == 0) {
             for (Player other : players) {
-                // Jump down
-                if (other != player && player.y + 1 == other.y && player.x == other.x) {
-                    if (y > player.y && !horizontalWalls[player.y + 2][player.x] && 
-                        !horizontalWalls[player.y + 1][player.x]) {
-                        return true;
+                if (other != player && player.y + 1 == other.y && player.x == other.x) { // ลง
+                    for (Player behind : players) {
+                        if (behind != player && behind != other && behind.y == player.y + 2 && behind.x == player.x) {
+                            return false; // มีผู้เล่นอีกคนอยู่ข้างหลัง
+                        }
                     }
-                }
-                // Jump up
-                if (other != player && player.y - 1 == other.y && player.x == other.x) {
-                    if (y < player.y && !horizontalWalls[player.y - 1][player.x] && 
-                        !horizontalWalls[player.y][player.x]) {
-                        return true;
+                    if (y > player.y && !horizontalWalls[player.y + 2][player.x] && !horizontalWalls[player.y + 1][player.x]) return true;
+                } else if (other != player && player.y - 1 == other.y && player.x == other.x) { // ขึ้น
+                    for (Player behind : players) {
+                        if (behind != player && behind != other && behind.y == player.y - 2 && behind.x == player.x) {
+                            return false; // มีผู้เล่นอีกคนอยู่ข้างหลัง
+                        }
                     }
+                    if (y < player.y && !horizontalWalls[player.y - 1][player.x] && !horizontalWalls[player.y][player.x]) return true;
                 }
             }
         }
-    
-        // Diagonal move (when blocked by two players)
+
+        if (dx == 2 && dy == 0) {
+        // Horizontal jump (left or right)
+        for (Player other : players) {
+            if (other != player && player.x + 1 == other.x && player.y == other.y) { // Right
+                for (Player behind : players) {
+                    if (behind != player && behind != other && behind.x == player.x + 2 && behind.y == player.y) {
+                        return false; // มีผู้เล่นอีกคนอยู่ข้างหลัง
+                    }
+                }
+                if (x > player.x && !verticalWalls[player.y][player.x + 2] && !verticalWalls[player.y][player.x + 1]) {
+                    return true; // Can move right over the other player
+                }
+            } else if (other != player && player.x - 1 == other.x && player.y == other.y) { // Left
+                for (Player behind : players) {
+                    if (behind != player && behind != other && behind.x == player.x - 2 && behind.y == player.y) {
+                        return false; // มีผู้เล่นอีกคนอยู่ข้างหลัง
+                    }
+                }
+                if (x < player.x && !verticalWalls[player.y][player.x - 1] && !verticalWalls[player.y][player.x]) {
+                    return true; // Can move left over the other player
+                }
+            }
+        }
+    }
+
+     // การเดินทแยง
         if (dx == 1 && dy == 1) {
-            boolean hasRightPlayer = false, hasLeftPlayer = false;
-            boolean hasAbovePlayer = false, hasBelowPlayer = false;
-    
-            // Check for adjacent players
-            for (Player other : players) {
-                if (other != player) {
-                    if (other.x == player.x + 1 && other.y == player.y) hasRightPlayer = true;
-                    if (other.x == player.x - 1 && other.y == player.y) hasLeftPlayer = true;
-                    if (other.x == player.x && other.y == player.y - 1) hasAbovePlayer = true;
-                    if (other.x == player.x && other.y == player.y + 1) hasBelowPlayer = true;
-                }
-            }
-    
-            // Check each diagonal direction
-            if (x > player.x && y < player.y && hasRightPlayer && hasAbovePlayer) {
-                return !verticalWalls[player.y - 1][player.x + 1] && 
-                       !horizontalWalls[player.y][player.x + 1];
-            }
-            if (x < player.x && y < player.y && hasLeftPlayer && hasAbovePlayer) {
-                return !verticalWalls[player.y - 1][player.x] && 
-                       !horizontalWalls[player.y][player.x - 1];
-            }
-            if (x > player.x && y > player.y && hasRightPlayer && hasBelowPlayer) {
-                return !verticalWalls[player.y + 1][player.x + 1] && 
-                       !horizontalWalls[player.y + 1][player.x + 1];
-            }
-            if (x < player.x && y > player.y && hasLeftPlayer && hasBelowPlayer) {
-                return !verticalWalls[player.y + 1][player.x] && 
-                       !horizontalWalls[player.y + 1][player.x - 1];
-            }
+        	for (Player other : players) {
+	// ตรวจสอบว่าามีผู้เล่นอยู่ตรงหน้าและมีกำแพงขวางหลังไหม
+        		if (player.x + 1 == other.x && player.y == other.y) { // มีผู้เล่นอยู่ทางขวา
+                	if (verticalWalls[player.y][player.x + 2]) { // เช็คว่ามีกำแพงข้างหลังผู้เล่นที่จะข้าม
+                    	if (y > player.y && !horizontalWalls[player.y + 1][player.x + 1]) { // เดินทแยง-ลงขวา
+                        	return true;
+                    	} else if (y < player.y && !horizontalWalls[player.y][player.x + 1]) { // เดินทแยง-ขึ้นขวา
+                        	return true;
+                    	}
+                	}
+            	} else if (player.x - 1 == other.x && player.y == other.y) { //มีผู้เล่นอยู่ทางซ้าย
+                	if (verticalWalls[player.y][player.x - 1]) {
+                    	if (y > player.y && !horizontalWalls[player.y + 1][player.x - 1]) { // เดินทแยง-ลงซ้าย
+                        	return true;
+                    	} else if (y < player.y && !horizontalWalls[player.y][player.x - 1]) { // เดินทแยง-ขึ้นซ้าย
+                        	return true;
+                    	}
+                	}
+            	} else if (player.y + 1 == other.y && player.x == other.x) { // มีผู้เล่นอยู่ข้างล่าง
+            	if (horizontalWalls[player.y + 2][player.x]) {
+                    	if (x > player.x && !verticalWalls[player.y + 1][player.x + 1]) { // เดินทแยง-ลงขวา
+                        	return true;
+                    	} else if (x < player.x && !verticalWalls[player.y + 1][player.x]) { // เดินทแยง-ลงซ้าย
+                    		return true;
+                    	}
+                	}
+            	} else if (player.y - 1 == other.y && player.x == other.x) { // มีผู้เล่นอยู่ข้างบน
+                	if (horizontalWalls[player.y - 1][player.x]) {
+                    	if (x > player.x && !verticalWalls[player.y - 1][player.x + 1]) { // เดินทแยง-ขึ้นขวา
+                        	return true;
+                    	} else if (x < player.x && !verticalWalls[player.y - 1][player.x]) { // เดินทแยง-ขึ้นซ้าย
+                    		return true;
+                    	}
+                	}
+            	}
+        	}
         }
-    
-        return false;
+        return false;  //เดินผิดตำเเหน่ง
     }
 
     private void switchPlayer() {
