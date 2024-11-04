@@ -12,7 +12,7 @@ public class QuoridorMain extends JFrame {
         JDialog setupDialog = new JDialog();
         setupDialog.setTitle("Quoridor Game Setup");
         setupDialog.setModal(true); // Makes it a modal dialog that blocks other windows until closed
-        setupDialog.setLocationRelativeTo(null); // Centers the dialog
+         // Centers the dialog
     
         setupPanel = new GameSetupPanel(setupDialog);
         setupDialog.add(setupPanel);
@@ -34,6 +34,7 @@ public class QuoridorMain extends JFrame {
         
     
         setupDialog.pack(); // Adjust the size of the dialog to fit its contents
+        setupDialog.setLocationRelativeTo(null);
         setupDialog.setVisible(true); // Display the dialog
     }
 

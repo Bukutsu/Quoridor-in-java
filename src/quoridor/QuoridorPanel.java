@@ -485,7 +485,7 @@ public class QuoridorPanel extends JPanel{
         if (dx == 1 && dy == 1) {
         	for (Player other : players) {
 	// ตรวจสอบว่าามีผู้เล่นอยู่ตรงหน้าและมีกำแพงขวางหลังไหม
-        		if (player.x + 1 == other.x && player.y == other.y) { // มีผู้เล่นอยู่ทางขวา
+        		if (player.x + 1 == other.x && player.y == other.y && !verticalWalls[player.y][player.x + 1]) { // มีผู้เล่นอยู่ทางขวา
                 	if (verticalWalls[player.y][player.x + 2]) { // เช็คว่ามีกำแพงข้างหลังผู้เล่นที่จะข้าม
                     	if (y > player.y && !horizontalWalls[player.y + 1][player.x + 1]) { // เดินทแยง-ลงขวา
                         	return true;
@@ -493,15 +493,15 @@ public class QuoridorPanel extends JPanel{
                         	return true;
                     	}
                 	}
-            	} else if (player.x - 1 == other.x && player.y == other.y) { //มีผู้เล่นอยู่ทางซ้าย
-                	if (verticalWalls[player.y][player.x - 1]) {
+            	} else if (player.x - 1 == other.x && player.y == other.y && !verticalWalls[player.y][player.x]) { //มีผู้เล่นอยู่ทางซ้าย
+                	if (verticalWalls[player.y][player.x - 2]) {
                     	if (y > player.y && !horizontalWalls[player.y + 1][player.x - 1]) { // เดินทแยง-ลงซ้าย
                         	return true;
                     	} else if (y < player.y && !horizontalWalls[player.y][player.x - 1]) { // เดินทแยง-ขึ้นซ้าย
                         	return true;
                     	}
                 	}
-            	} else if (player.y + 1 == other.y && player.x == other.x) { // มีผู้เล่นอยู่ข้างล่าง
+            	} else if (player.y - 1 == other.y && player.x == other.x && !horizontalWalls[player.y + 1][player.x]) { // มีผู้เล่นอยู่ข้างล่าง
             	if (horizontalWalls[player.y + 2][player.x]) {
                     	if (x > player.x && !verticalWalls[player.y + 1][player.x + 1]) { // เดินทแยง-ลงขวา
                         	return true;
@@ -509,8 +509,8 @@ public class QuoridorPanel extends JPanel{
                     		return true;
                     	}
                 	}
-            	} else if (player.y - 1 == other.y && player.x == other.x) { // มีผู้เล่นอยู่ข้างบน
-                	if (horizontalWalls[player.y - 1][player.x]) {
+            	} else if (player.y + 1 == other.y && player.x == other.x && !horizontalWalls[player.y][player.x]) { // มีผู้เล่นอยู่ข้างบน
+                	if (horizontalWalls[player.y + 2][player.x]) {
                     	if (x > player.x && !verticalWalls[player.y - 1][player.x + 1]) { // เดินทแยง-ขึ้นขวา
                         	return true;
                     	} else if (x < player.x && !verticalWalls[player.y - 1][player.x]) { // เดินทแยง-ขึ้นซ้าย
