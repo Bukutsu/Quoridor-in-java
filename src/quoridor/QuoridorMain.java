@@ -1,5 +1,6 @@
 package quoridor;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class QuoridorMain extends JFrame {
@@ -40,20 +41,22 @@ public class QuoridorMain extends JFrame {
     public QuoridorMain(String mode) {
         setTitle("Quoridor");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 600);
         setResizable(false);
-        setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
-        
-        gamePanel = new QuoridorPanel(mode);
-        statusPanel = new StatusPanel(gamePanel.getPlayers(),gamePanel.getCurrentPlayer(),setupPanel.getPlayerNames());
-        gamePanel.setStatusPanel(statusPanel);
-        gamePanel.setOpaque(false);
-        statusPanel.setOpaque(false);
         getContentPane().setBackground(BACKGROUND_COLOR);
-        add(gamePanel, BorderLayout.CENTER);
-        add(statusPanel, BorderLayout.EAST);
-        pack();    
+
+        gamePanel = new QuoridorPanel(mode);
+        statusPanel = new StatusPanel(gamePanel.getPlayers(), gamePanel.getCurrentPlayer(), setupPanel.getPlayerNames());
+        gamePanel.setStatusPanel(statusPanel);
+
+        JPanel contentPanel = new JPanel(new BorderLayout(18, 0));
+        contentPanel.setOpaque(false);
+        contentPanel.setBorder(new EmptyBorder(16, 16, 16, 16));
+        contentPanel.add(gamePanel, BorderLayout.CENTER);
+        contentPanel.add(statusPanel, BorderLayout.EAST);
+
+        add(contentPanel, BorderLayout.CENTER);
+        pack();
+        setLocationRelativeTo(null);
     }
 
 

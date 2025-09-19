@@ -1,6 +1,7 @@
 package quoridor;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.*;
@@ -22,9 +23,12 @@ public class GameSetupPanel extends JPanel {
     public GameSetupPanel(JDialog parentDialog) {
         this.parentDialog = parentDialog;
         setLayout(new BorderLayout(10, 10));
+        setBackground(Color.decode("#f8f5ed"));
+        setBorder(new EmptyBorder(16, 16, 16, 16));
 
         // Mode selection panel with radio buttons
         JPanel modePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        modePanel.setOpaque(false);
         modePanel.add(new JLabel("Select Game Mode:"));
 
         twoPlayerMode = new JRadioButton("Two Player");
@@ -42,6 +46,7 @@ public class GameSetupPanel extends JPanel {
         // Players setup panel (will change based on selected mode)
         playersPanel = new JPanel();
         playersPanel.setLayout(new BoxLayout(playersPanel, BoxLayout.Y_AXIS));
+        playersPanel.setOpaque(false);
         add(playersPanel, BorderLayout.CENTER);
 
         playerSetupPanels = new ArrayList<>();
@@ -50,6 +55,7 @@ public class GameSetupPanel extends JPanel {
         // Add button to start the game at the bottom
         startGameButton = new JButton("Start Game");
         JPanel buttonPanel = new JPanel(); // A panel to center the button
+        buttonPanel.setOpaque(false);
         buttonPanel.add(startGameButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
@@ -109,10 +115,11 @@ public class GameSetupPanel extends JPanel {
         private Color selectedColor;
     
         public PlayerSetupPanel(int playerIndex, String defaultName) {
-    
+
             setLayout(new FlowLayout(FlowLayout.LEFT));
             setBorder(BorderFactory.createTitledBorder(defaultName));
-    
+            setOpaque(false);
+
             // Player name input
             playerNameField = new JTextField(defaultName, 10);
             add(new JLabel("Name:"));
