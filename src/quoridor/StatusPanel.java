@@ -13,15 +13,13 @@ public class StatusPanel extends JPanel {
     private final JPanel[] playerPanel;
     private final Player[] players;
     private final String[] playerNames;
+    private final JButton themeToggleButton;
+    private final JSeparator divider;
+    private final JLabel titleLabel;
+    private Runnable themeToggleListener;
+    private ThemePalette themePalette;
+    private Player highlightedPlayer;
     private int elapsedTime = 0;
-
-    private static final Color PANEL_BACKGROUND_COLOR = Color.decode("#f5f0e6");
-    private static final Color PANEL_BORDER_COLOR = Color.decode("#b8a490");
-    private static final Color SECTION_BACKGROUND_COLOR = Color.decode("#eae2d6");
-    private static final Color CURRENT_TURN_BACKGROUND_COLOR = Color.decode("#d4f1f4");
-    private static final Color CURRENT_TURN_BORDER_COLOR = Color.decode("#75b9be");
-    private static final Color TEXT_PRIMARY_COLOR = Color.decode("#2f4858");
-    private static final Color TEXT_SECONDARY_COLOR = Color.decode("#5d554f");
 
     private static final Font TITLE_FONT = new Font("SansSerif", Font.BOLD, 20);
     private static final Font TIME_FONT = new Font("SansSerif", Font.BOLD, 16);
@@ -29,22 +27,23 @@ public class StatusPanel extends JPanel {
     private static final Font WALL_FONT = new Font("SansSerif", Font.BOLD, 14);
     private static final Font STATUS_FONT = new Font("SansSerif", Font.ITALIC, 13);
 
-    public StatusPanel(Player[] players, Player currentPlayer, String[] playerNames) {
+    public StatusPanel(Player[] players, Player currentPlayer, String[] playerNames, ThemePalette palette) {
         this.players = players;
         this.playerNames = playerNames.clone();
+        this.themePalette = palette;
 
         setOpaque(true);
-        setBackground(PANEL_BACKGROUND_COLOR);
+        setBackground(themePalette.statusPanelBackground());
         setPreferredSize(new Dimension(240, 0));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(PANEL_BORDER_COLOR, 1),
+                BorderFactory.createLineBorder(themePalette.statusPanelBorder(), 1),
                 new EmptyBorder(18, 18, 18, 18)
         ));
 
-        JLabel titleLabel = new JLabel("Game Status");
+        titleLabel = new JLabel("Game Status");
         titleLabel.setFont(TITLE_FONT);
-        titleLabel.setForeground(TEXT_PRIMARY_COLOR);
+        titleLabel.setForeground(themePalette.statusTextPrimary());
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(titleLabel);
 
@@ -52,12 +51,15 @@ public class StatusPanel extends JPanel {
 
         timeLabel = new JLabel("Time: 00:00");
         timeLabel.setFont(TIME_FONT);
-        timeLabel.setForeground(TEXT_PRIMARY_COLOR);
+        timeLabel.setForeground(themePalette.statusTextPrimary());
         timeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(timeLabel);
 
         add(Box.createRigidArea(new Dimension(0, 10)));
-        add(new JSeparator());
+        divider = new JSeparator();
+        divider.setForeground(themePalette.statusDividerColor());
+        divider.setBackground(themePalette.statusDividerColor());
+        add(divider);
         add(Box.createRigidArea(new Dimension(0, 14)));
 
         playerWallsLabel = new JLabel[players.length];
@@ -76,9 +78,19 @@ public class StatusPanel extends JPanel {
 
         statusMessageLabel = new JLabel("Ready to play.");
         statusMessageLabel.setFont(STATUS_FONT);
-        statusMessageLabel.setForeground(TEXT_SECONDARY_COLOR);
+        statusMessageLabel.setForeground(themePalette.statusMessageColor());
         statusMessageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(statusMessageLabel);
+
+        themeToggleButton = new JButton();
+        themeToggleButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        themeToggleButton.addActionListener(e -> {
+            if (themeToggleListener != null) {
+                themeToggleListener.run();
+            }
+        });
+        add(Box.createRigidArea(new Dimension(0, 12)));
+        add(themeToggleButton);
 
         timer = new Timer(1000, e -> {
             elapsedTime++;
@@ -88,12 +100,13 @@ public class StatusPanel extends JPanel {
 
         updatePlayerPanel(currentPlayer);
         updateStatusPanel();
+        refreshThemeDependentComponents();
     }
 
     private JPanel buildPlayerPanel(int index) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
         panel.setOpaque(true);
-        panel.setBackground(SECTION_BACKGROUND_COLOR);
+        panel.setBackground(themePalette.statusSectionBackground());
         panel.setMaximumSize(new Dimension(260, 76));
 
         PlayerColorIndicator indicator = new PlayerColorIndicator(PlayerColorStore.getPlayerColor(index), 28);
@@ -105,13 +118,13 @@ public class StatusPanel extends JPanel {
 
         JLabel nameLabel = new JLabel(playerNames[index]);
         nameLabel.setFont(NAME_FONT);
-        nameLabel.setForeground(TEXT_PRIMARY_COLOR);
+        nameLabel.setForeground(themePalette.statusTextPrimary());
         playerNameLabels[index] = nameLabel;
         textPanel.add(nameLabel);
 
         playerWallsLabel[index] = new JLabel("Walls: " + players[index].wall);
         playerWallsLabel[index].setFont(WALL_FONT);
-        playerWallsLabel[index].setForeground(TEXT_SECONDARY_COLOR);
+        playerWallsLabel[index].setForeground(themePalette.statusTextSecondary());
         textPanel.add(playerWallsLabel[index]);
 
         panel.add(textPanel);
@@ -120,7 +133,7 @@ public class StatusPanel extends JPanel {
     }
 
     private javax.swing.border.Border createPlayerBorder(boolean active) {
-        Color borderColor = active ? CURRENT_TURN_BORDER_COLOR : PANEL_BORDER_COLOR;
+        Color borderColor = active ? themePalette.statusCurrentTurnBorder() : themePalette.statusPanelBorder();
         return BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(borderColor, 1),
                 new EmptyBorder(8, 12, 8, 12)
@@ -150,9 +163,10 @@ public class StatusPanel extends JPanel {
     }
 
     public void updatePlayerPanel(Player currentPlayer) {
+        highlightedPlayer = currentPlayer;
         for (int i = 0; i < players.length; i++) {
             boolean isCurrent = players[i] == currentPlayer;
-            playerPanel[i].setBackground(isCurrent ? CURRENT_TURN_BACKGROUND_COLOR : SECTION_BACKGROUND_COLOR);
+            playerPanel[i].setBackground(isCurrent ? themePalette.statusCurrentTurnBackground() : themePalette.statusSectionBackground());
             playerPanel[i].setBorder(createPlayerBorder(isCurrent));
             playerNameLabels[i].setFont(isCurrent ? NAME_FONT.deriveFont(Font.BOLD) : NAME_FONT);
         }
@@ -160,6 +174,43 @@ public class StatusPanel extends JPanel {
 
     public void setStatusMessage(String message) {
         statusMessageLabel.setText(message);
+    }
+
+    public void setThemeToggleListener(Runnable listener) {
+        this.themeToggleListener = listener;
+    }
+
+    public void applyTheme(ThemePalette palette) {
+        this.themePalette = palette;
+        setBackground(palette.statusPanelBackground());
+        setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(palette.statusPanelBorder(), 1),
+                new EmptyBorder(18, 18, 18, 18)
+        ));
+        refreshThemeDependentComponents();
+    }
+
+    private void refreshThemeDependentComponents() {
+        titleLabel.setForeground(themePalette.statusTextPrimary());
+        timeLabel.setForeground(themePalette.statusTextPrimary());
+        statusMessageLabel.setForeground(themePalette.statusMessageColor());
+        divider.setForeground(themePalette.statusDividerColor());
+        divider.setBackground(themePalette.statusDividerColor());
+        for (int i = 0; i < players.length; i++) {
+            playerNameLabels[i].setForeground(themePalette.statusTextPrimary());
+            playerWallsLabel[i].setForeground(themePalette.statusTextSecondary());
+            playerPanel[i].setBackground(themePalette.statusSectionBackground());
+        }
+        themeToggleButton.setBackground(themePalette.themeToggleBackground());
+        themeToggleButton.setForeground(themePalette.themeToggleForeground());
+        themeToggleButton.setFocusPainted(false);
+        themeToggleButton.setOpaque(true);
+        themeToggleButton.setBorder(BorderFactory.createLineBorder(themePalette.statusPanelBorder()));
+        themeToggleButton.setText(themePalette.isDark() ? "Switch to Light Theme" : "Switch to Dark Theme");
+
+        if (highlightedPlayer != null) {
+            updatePlayerPanel(highlightedPlayer);
+        }
     }
 
     public String getPlayerName(int index) {

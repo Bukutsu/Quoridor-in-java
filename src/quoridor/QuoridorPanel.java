@@ -17,6 +17,7 @@ public class QuoridorPanel extends JPanel{
     private int currentPlayerIndex;
     private StatusPanel statusPanel;
     private int startingWalls;
+    private ThemePalette themePalette;
     private int previewX = -1;
     private int previewY = -1;
     private boolean previewHorizontal = true;
@@ -35,16 +36,6 @@ public class QuoridorPanel extends JPanel{
     private static final Stroke BOARD_BORDER_STROKE = new BasicStroke(3f,
             BasicStroke.CAP_ROUND,
             BasicStroke.JOIN_ROUND);
-
-    private static final Color BOARD_GRADIENT_TOP = new Color(246, 229, 192);
-    private static final Color BOARD_GRADIENT_BOTTOM = new Color(223, 190, 142);
-    private static final Color BOARD_BORDER_COLOR = new Color(154, 123, 91);
-    private static final Color GRID_LINE_COLOR = new Color(72, 59, 48);
-    private static final Color VALID_MOVE_FILL = new Color(46, 204, 113, 160);
-    private static final Color VALID_MOVE_STROKE = new Color(27, 156, 88, 200);
-    private static final Color CURRENT_PLAYER_GLOW = new Color(255, 255, 255, 160);
-    private static final Color PLAYER_OUTLINE_COLOR = new Color(45, 45, 45, 160);
-    private static final Color WALL_BORDER_COLOR = new Color(54, 47, 43, 140);
 
     //wall click sensitivity
     private static final int CLICK_TOLERANCE = 10;
@@ -66,6 +57,7 @@ public class QuoridorPanel extends JPanel{
     public void setStatusPanel(StatusPanel statusPanel) {
         this.statusPanel = statusPanel;
         if (statusPanel != null) {
+            statusPanel.applyTheme(themePalette);
             statusPanel.updatePlayerPanel(currentPlayer);
             statusPanel.updateWallsLabel();
             statusPanel.setStatusMessage(String.format("%s's turn.", getPlayerDisplayName(currentPlayer)));
@@ -76,8 +68,15 @@ public class QuoridorPanel extends JPanel{
         return currentPlayer;
     }
 
-    public QuoridorPanel(String mode) {
+    public void applyTheme(ThemePalette palette) {
+        this.themePalette = palette;
+        setBackground(palette.boardBackground());
+        repaint();
+    }
+
+    public QuoridorPanel(String mode, ThemePalette palette) {
         walls = new ArrayList<>();
+        this.themePalette = palette;
 
         if ("Four Player".equals(mode)) {
             players = new Player[4];
@@ -95,7 +94,7 @@ public class QuoridorPanel extends JPanel{
         currentPlayer = players[currentPlayerIndex];
 
         setPreferredSize(new Dimension(BOARD_PIXEL_SIZE + 1, BOARD_PIXEL_SIZE + 1));
-        setBackground(new Color(240, 236, 227));
+        setBackground(themePalette.boardBackground());
         addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 handleMouseClick(e);
@@ -128,7 +127,7 @@ public class QuoridorPanel extends JPanel{
         paintBoardBackground(g2d);
 
         g2d.setStroke(GRID_STROKE);
-        g2d.setColor(GRID_LINE_COLOR);
+        g2d.setColor(themePalette.gridLineColor());
         for (int i = 0; i <= BOARD_SIZE; i++) {
             int position = i * CELL_SIZE;
             g2d.drawLine(position, 0, position, BOARD_PIXEL_SIZE);
@@ -137,11 +136,11 @@ public class QuoridorPanel extends JPanel{
     }
 
     private void paintBoardBackground(Graphics2D g2d) {
-        GradientPaint gradient = new GradientPaint(0, 0, BOARD_GRADIENT_TOP, 0, BOARD_PIXEL_SIZE, BOARD_GRADIENT_BOTTOM);
+        GradientPaint gradient = new GradientPaint(0, 0, themePalette.boardGradientTop(), 0, BOARD_PIXEL_SIZE, themePalette.boardGradientBottom());
         g2d.setPaint(gradient);
         g2d.fillRect(0, 0, BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE);
 
-        g2d.setPaint(BOARD_BORDER_COLOR);
+        g2d.setPaint(themePalette.boardBorderColor());
         g2d.setStroke(BOARD_BORDER_STROKE);
         g2d.drawRoundRect(0, 0, BOARD_PIXEL_SIZE - 1, BOARD_PIXEL_SIZE - 1, 18, 18);
     }
@@ -198,7 +197,7 @@ public class QuoridorPanel extends JPanel{
                         WALL_THICKNESS,
                         WALL_THICKNESS);
                 g2d.fill(shape);
-                g2d.setColor(WALL_BORDER_COLOR);
+                g2d.setColor(themePalette.wallBorderColor());
                 g2d.draw(shape);
             } else {
                 Shape shape = new RoundRectangle2D.Float(
@@ -209,7 +208,7 @@ public class QuoridorPanel extends JPanel{
                         WALL_THICKNESS,
                         WALL_THICKNESS);
                 g2d.fill(shape);
-                g2d.setColor(WALL_BORDER_COLOR);
+                g2d.setColor(themePalette.wallBorderColor());
                 g2d.draw(shape);
             }
         }
@@ -226,10 +225,10 @@ public class QuoridorPanel extends JPanel{
             int radius = CELL_SIZE / 4;
             int diameter = radius * 2;
 
-            g2d.setColor(VALID_MOVE_FILL);
+            g2d.setColor(themePalette.validMoveFill());
             g2d.fillOval(centerX - radius, centerY - radius, diameter, diameter);
 
-            g2d.setColor(VALID_MOVE_STROKE);
+            g2d.setColor(themePalette.validMoveStroke());
             g2d.drawOval(centerX - radius, centerY - radius, diameter, diameter);
         }
     }
@@ -251,14 +250,14 @@ public class QuoridorPanel extends JPanel{
                 int centerX = player.x * CELL_SIZE + CELL_SIZE / 2;
                 int centerY = player.y * CELL_SIZE + CELL_SIZE / 2;
                 int glowDiameter = pieceDiameter + 12;
-                g2d.setColor(CURRENT_PLAYER_GLOW);
+                g2d.setColor(themePalette.currentPlayerGlow());
                 g2d.fillOval(centerX - glowDiameter / 2, centerY - glowDiameter / 2, glowDiameter, glowDiameter);
             }
 
             g2d.setColor(PlayerColorStore.getPlayerColor(i));
             g2d.fillOval(pieceX, pieceY, pieceDiameter, pieceDiameter);
 
-            g2d.setColor(PLAYER_OUTLINE_COLOR);
+            g2d.setColor(themePalette.playerOutlineColor());
             g2d.setStroke(new BasicStroke(2.2f));
             g2d.drawOval(pieceX, pieceY, pieceDiameter, pieceDiameter);
         }

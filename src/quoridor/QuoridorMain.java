@@ -7,7 +7,9 @@ public class QuoridorMain extends JFrame {
     private QuoridorPanel gamePanel;
     private StatusPanel statusPanel;
     private static GameSetupPanel setupPanel;
-    private static final Color BACKGROUND_COLOR = Color.decode("#faf6ed");
+    private static ThemePalette sharedPalette = ThemePalette.light();
+    private ThemePalette currentPalette;
+    private JPanel contentPanel;
 
     private static void showGameSetupDialog() {
         JDialog setupDialog = new JDialog();
@@ -15,7 +17,13 @@ public class QuoridorMain extends JFrame {
         setupDialog.setModal(true); // Makes it a modal dialog that blocks other windows until closed
         setupDialog.setLocationRelativeTo(null); // Centers the dialog
     
-        setupPanel = new GameSetupPanel(setupDialog);
+        setupDialog.getContentPane().setBackground(sharedPalette.frameBackground());
+
+        setupPanel = new GameSetupPanel(setupDialog, sharedPalette, palette -> {
+            sharedPalette = palette;
+            setupDialog.getContentPane().setBackground(palette.frameBackground());
+            setupDialog.repaint();
+        });
         setupDialog.add(setupPanel);
     
         // Action Listener for start button to close the setup dialog and start the main game
@@ -42,13 +50,14 @@ public class QuoridorMain extends JFrame {
         setTitle("Quoridor");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
-        getContentPane().setBackground(BACKGROUND_COLOR);
 
-        gamePanel = new QuoridorPanel(mode);
-        statusPanel = new StatusPanel(gamePanel.getPlayers(), gamePanel.getCurrentPlayer(), setupPanel.getPlayerNames());
+        currentPalette = sharedPalette;
+
+        gamePanel = new QuoridorPanel(mode, currentPalette);
+        statusPanel = new StatusPanel(gamePanel.getPlayers(), gamePanel.getCurrentPlayer(), setupPanel.getPlayerNames(), currentPalette);
         gamePanel.setStatusPanel(statusPanel);
 
-        JPanel contentPanel = new JPanel(new BorderLayout(18, 0));
+        contentPanel = new JPanel(new BorderLayout(18, 0));
         contentPanel.setOpaque(false);
         contentPanel.setBorder(new EmptyBorder(16, 16, 16, 16));
         contentPanel.add(gamePanel, BorderLayout.CENTER);
@@ -57,14 +66,37 @@ public class QuoridorMain extends JFrame {
         add(contentPanel, BorderLayout.CENTER);
         pack();
         setLocationRelativeTo(null);
+
+        statusPanel.setThemeToggleListener(this::toggleTheme);
+        applyTheme(currentPalette);
+    }
+
+    private void toggleTheme() {
+        ThemePalette next = currentPalette.isDark() ? ThemePalette.light() : ThemePalette.dark();
+        applyTheme(next);
+    }
+
+    private void applyTheme(ThemePalette palette) {
+        this.currentPalette = palette;
+        sharedPalette = palette;
+        getContentPane().setBackground(palette.frameBackground());
+        if (contentPanel != null) {
+            contentPanel.setOpaque(true);
+            contentPanel.setBackground(palette.frameBackground());
+        }
+        if (gamePanel != null) {
+            gamePanel.applyTheme(palette);
+        }
+        if (statusPanel != null) {
+            statusPanel.applyTheme(palette);
+            statusPanel.updatePlayerPanel(gamePanel.getCurrentPlayer());
+        }
+        revalidate();
+        repaint();
     }
 
 
     public static void main(String[] args) {
-        // SwingUtilities.invokeLater(() -> {
-        //     QuoridorMain game = new QuoridorMain();
-        //     game.setVisible(true);
-        // });
 
         SwingUtilities.invokeLater(() -> {
             try {
